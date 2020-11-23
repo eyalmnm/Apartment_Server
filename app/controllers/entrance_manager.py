@@ -61,8 +61,8 @@ def get_entrance_by_id(data):
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
         entrance = db.session.query(Entrance).get(id)
-        entrance_dict = entrance.to_dict()
         if entrance:
+            entrance_dict = entrance.to_dict()
             return jsonify(
                 {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
                  'error_message': '',
@@ -81,18 +81,22 @@ def update_entrance_by_id(data):
     name = data.get('name')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        entrance = db.session.query(Entrance).get(id)
-        if entrance:
-            entrance.building_id = building_id
-            entrance.name = name
-            entrance.update_entrance()
-            entrance_dict = entrance.to_dict()
-            return jsonify(
-                {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
-                 'error_message': '',
-                 'entranceData': entrance_dict})
+        building = db.session.query(Building).get(building_id)
+        if building:
+            entrance = db.session.query(Entrance).get(id)
+            if entrance:
+                entrance.building_id = building_id
+                entrance.name = name
+                entrance.update_entrance()
+                entrance_dict = entrance.to_dict()
+                return jsonify(
+                    {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
+                     'error_message': '',
+                     'entranceData': entrance_dict})
+            else:
+                return generate_entarnce_not_found_error(id)
         else:
-            return generate_entarnce_not_found_error(id)
+            return generate_building_not_found_error(building_id)
     else:
         return generate_user_not_login_response()
 
