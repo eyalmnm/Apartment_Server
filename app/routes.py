@@ -11,6 +11,8 @@ from app.controllers.city_manager import add_new_city, get_city_by_id, update_ci
 from app.controllers.street_manager import add_new_street, get_street_by_id, update_street_by_id, delete_street_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
     delete_building_by_id
+from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
+    delete_entrance_by_id
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -392,6 +394,7 @@ def get_building():
     else:
         return 'Unknown Package'
 
+
 @app.route('/update_building', methods=['PUT'])
 def update_building():
     """
@@ -417,6 +420,61 @@ def delete_building():
     """
     if check_auth_header_secret():
         return delete_building_by_id()
+    else:
+        return 'Unknown Package'
+
+
+# ==================================   Entrance  ==============================
+@app.route('/add_entrance', methods=['POST'])
+def add_entrance():
+    """
+    uuid = fields.Str(required=True)
+    building_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'entrance_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_entrance()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('get_entrance', methods=['POST', 'GET'])
+def get_entrance():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'entranceData': entrance_dict}
+    """
+    if check_auth_header_secret():
+        return get_entrance_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_entrance', methods=['PUT'])
+def update_entrance():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    building_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'entranceData': entrance_dict}
+    """
+    if check_auth_header_secret():
+        return update_entrance_by_id()
+    else:
+        return 'Unknown Package'
+
+@app.route('/delete_entrance', methods=['DELETE'])
+def delete_entrance():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'entrance_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_entrance_by_id()
     else:
         return 'Unknown Package'
 

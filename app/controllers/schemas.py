@@ -185,3 +185,26 @@ class UpdateBuildingByIdSchema(Schema):
 class DeleteBuildingByIdSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Int(required=True)
+
+
+class AddNewEntranceSchema(Schema):
+    uuid = fields.Str(required=True)
+    building_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+
+class GetEntranceByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
+class UpdateEntranceByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    building_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+
+class DeleteEntranceByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
