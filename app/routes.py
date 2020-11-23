@@ -13,6 +13,7 @@ from app.controllers.building_manager import add_new_building, get_building_by_i
     delete_building_by_id
 from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
+from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -466,6 +467,7 @@ def update_entrance():
     else:
         return 'Unknown Package'
 
+
 @app.route('/delete_entrance', methods=['DELETE'])
 def delete_entrance():
     """
@@ -475,6 +477,61 @@ def delete_entrance():
     """
     if check_auth_header_secret():
         return delete_entrance_by_id()
+    else:
+        return 'Unknown Package'
+
+
+# ==================================   Floor  =================================
+@app.route('/add_floor', methods=['POST'])
+def add_floor():
+    """
+    uuid = fields.Str(required=True)
+    entrance_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'floor_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_floor()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_floor', methods=['POST', 'GET'])
+def get_floor():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'floorData': floor_dict}
+    """
+    if check_auth_header_secret():
+        return get_floor_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_floor', methods=['PUT'])
+def update_floor():
+    """
+    uuid = fields.Str(required=True)
+    entrance_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'floorData': floor_dict}
+    """
+    if check_auth_header_secret():
+        return update_floor_by_id()
+    else:
+        return 'Unknown Package'
+
+@app.route('/delete_floor', methods=['PUT'])
+def delete_floor():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'floor_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_floor_by_id()
     else:
         return 'Unknown Package'
 

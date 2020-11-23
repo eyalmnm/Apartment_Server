@@ -208,3 +208,24 @@ class UpdateEntranceByIdSchema(Schema):
 class DeleteEntranceByIdSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Int(required=True)
+
+
+class AddNewFloorSchema(Schema):
+    uuid = fields.Str(required=True)
+    entrance_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+
+class GetFloorByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+class UpdateFloorByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    entrance_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+class DeleteFloorByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
