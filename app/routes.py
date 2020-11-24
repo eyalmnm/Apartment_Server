@@ -14,6 +14,7 @@ from app.controllers.building_manager import add_new_building, get_building_by_i
 from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
+from app.controllers.analytics_manager import add_new_analytics
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -523,6 +524,7 @@ def update_floor():
     else:
         return 'Unknown Package'
 
+
 @app.route('/delete_floor', methods=['PUT'])
 def delete_floor():
     """
@@ -534,6 +536,21 @@ def delete_floor():
         return delete_floor_by_id()
     else:
         return 'Unknown Package'
+
+# ==================================   Analytics  =============================
+@app.route('/add_analytics', methods=['POST'])
+def add_analytics():
+    """
+    uuid = fields.Str(required=True)
+    event = fields.Int(required=True)
+    data = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'analitcs_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_analytics()
+    else:
+        return 'Unknown Package'
+
 
 # ==================================   General  ===============================
 def check_auth_header_secret():

@@ -553,3 +553,18 @@ class Answer(db.Model):
 
     def __repr__(self):
         return '<answer {}>'.format(self.text)
+
+
+# ==================================   Analytics  =============================
+class Analytics(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    event = db.Column(db.Integer(64), index=True, nullable=False)
+    data = db.Column(db.String(2048), index=False, nullable=False)
+
+    def __init__(self, event, data):
+        self.event = event
+        self.data = data
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
