@@ -14,6 +14,9 @@ from app.controllers.building_manager import add_new_building, get_building_by_i
 from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
+from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
+    delete_apartment_by_id
+
 from app.controllers.analytics_manager import add_new_analytics
 
 
@@ -536,6 +539,65 @@ def delete_floor():
         return delete_floor_by_id()
     else:
         return 'Unknown Package'
+
+
+# ==================================   Apartment  =============================
+@app.route('/add_apartment', methods=['POST'])
+def add_apartment():
+    """
+    uuid = fields.Str(required=True)
+    floor_id = fields.Int(required=True)
+    company_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'apartment_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_apartment()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_apartment', methods=['POST', 'GET'])
+def get_apartment():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'apartmentData': apartment_dict}
+    """
+    if check_auth_header_secret():
+        return get_apartment_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_apartment', methods=['PUT'])
+def upadte_apartment():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    floor_id = fields.Int(required=True)
+    company_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'apartmentData': apartment_dict}
+    """
+    if check_auth_header_secret():
+        return update_apartment_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/delete_apartment', methods=['PUT'])
+def delete_apartment():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'apartment_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_apartment_by_id()
+    else:
+        return 'Unknown Package'
+
 
 # ==================================   Analytics  =============================
 @app.route('/add_analytics', methods=['POST'])

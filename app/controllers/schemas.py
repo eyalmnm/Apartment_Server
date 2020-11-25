@@ -233,6 +233,31 @@ class DeleteFloorByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+class AddNewApartmentSchema(Schema):
+    uuid = fields.Str(required=True)
+    floor_id = fields.Int(required=True)
+    company_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+
+class GetApartmentByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
+class UpdateApartmentByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    floor_id = fields.Int(required=True)
+    company_id = fields.Int(required=True)
+    name = fields.Int(required=True)
+
+
+class DeleteApartmentByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
 class AddNewAnalyticsSchema(Schema):
     uuid = fields.Str(required=True)
     event = fields.Int(required=True)
