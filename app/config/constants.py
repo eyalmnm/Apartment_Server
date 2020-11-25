@@ -44,6 +44,9 @@ class ErrorCodes(Enum):
     # Apartment Error Codes (1100 - 1199)
     ERROR_CODE_APARTMENT_NOT_FOUND = 1100
 
+    # Room Error Codes (1200 - 1299)
+    ERROR_CODE_ROOM_NOT_FOUND = 1200
+
 
 def enum_to_string(enum):
     return enum.name.lower().replace('_', ' ').replace("cant", "can't").capitalize()

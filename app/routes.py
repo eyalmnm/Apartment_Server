@@ -16,6 +16,7 @@ from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_i
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
 from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
     delete_apartment_by_id
+from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
 
 from app.controllers.analytics_manager import add_new_analytics
 
@@ -586,7 +587,7 @@ def upadte_apartment():
         return 'Unknown Package'
 
 
-@app.route('/delete_apartment', methods=['PUT'])
+@app.route('/delete_apartment', methods=['DELETE'])
 def delete_apartment():
     """
     uuid = fields.Str(required=True)
@@ -595,6 +596,64 @@ def delete_apartment():
     """
     if check_auth_header_secret():
         return delete_apartment_by_id()
+    else:
+        return 'Unknown Package'
+
+
+# ==================================   Room  ==================================
+@app.route('/add_room', methods=['POST'])
+def add_room():
+    """
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    type = fields.Int(required=True)
+    apartment_id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'room_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_room()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('get_room', methods=['POST', 'GET'])
+def get_room():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'roomData': room_dict}
+    """
+    if check_auth_header_secret():
+        return get_room_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_room', methods=['PUT'])
+def update_room():
+    """
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    type = fields.Int(required=True)
+    apartment_id = fields.Int(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'roomData': room_dict}
+    """
+    if check_auth_header_secret():
+        return update_room_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/delete_room', methods=['DELETE'])
+def delete_room():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'room_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_room_by_id()
     else:
         return 'Unknown Package'
 
