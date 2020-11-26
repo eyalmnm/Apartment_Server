@@ -283,6 +283,30 @@ class DeleteRoomByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+class AddNewQuestionnaireSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    name = fields.Str(required=True)
+    room_id = fields.Int(required=True)
+
+
+class GetQuestionnaireByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
+class UpdateQuestionnaireByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    name = fields.Str(required=True)
+    room_id = fields.Int(required=True)
+
+
+class DeleteQuestionnaireByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
 class AddNewAnalyticsSchema(Schema):
     uuid = fields.Str(required=True)
     event = fields.Int(required=True)
