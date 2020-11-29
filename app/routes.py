@@ -19,6 +19,8 @@ from app.controllers.apartment_manager import add_new_apartment, get_apartment_b
 from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
 from app.controllers.questionnaire_manager import add_new_questionnaire, get_questionnaire_by_id, \
     update_questionnaire_by_id, delete_questionnaire_by_id
+from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
+    delete_question_by_id
 
 from app.controllers.analytics_manager import add_new_analytics
 
@@ -716,6 +718,61 @@ def delete_questionnaire():
     else:
         return 'Unknown Package'
 
+
+# ==================================   Question  ==============================
+@app.route('/add_question', methods=['POST'])
+def add_question():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    type = fields.Int(required=True)
+    text = fields.Str(required=True)
+    questionnaire_id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'question_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_question()
+    else:
+        return 'Unknown Package'
+
+@app.route('/get_question', methods=['POST', 'PUT'])
+def get_question():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'questionData': question_dict}
+    """
+    if check_auth_header_secret():
+        return get_question_by_id()
+    else:
+        return 'Unknown Package'
+
+@app.route('/update_qeustion', methods=['PUT'])
+def update_question():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    type = fields.Int(required=True)
+    text = fields.Str(required=True)
+    questionnaire_id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'questionData': question_dict}
+    """
+    if check_auth_header_secret():
+        return update_question_by_id()
+    else:
+        return 'Unknown Package'
+
+@app.route('/delete_qeustion', methods=['DELETE'])
+def update_question():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'question_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_question_by_id()
+    else:
+        return 'Unknown Package'
 
 # ==================================   Analytics  =============================
 @app.route('/add_analytics', methods=['POST'])

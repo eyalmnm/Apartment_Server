@@ -307,6 +307,32 @@ class DeleteQuestionnaireByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+class AddNewQuestionSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    type = fields.Int(required=True)
+    text = fields.Str(required=True)
+    questionnaire_id = fields.Str(required=True)
+
+
+class GetQuestionByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
+class UpdateQuestionByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    type = fields.Int(required=True)
+    text = fields.Str(required=True)
+    questionnaire_id = fields.Str(required=True)
+
+
+class DeleteQuestionByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
 class AddNewAnalyticsSchema(Schema):
     uuid = fields.Str(required=True)
     event = fields.Int(required=True)

@@ -40,7 +40,7 @@ def generate_user_not_login_response() -> json:
 @validate_schema(add_new_questionnaire_schema)
 def add_new_questionnaire(data):
     uuid = data.get('uuid')
-    id = data.get(id)
+    id = data.get('id')
     name = data.get('name')
     room_id = data.get('room_id')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
