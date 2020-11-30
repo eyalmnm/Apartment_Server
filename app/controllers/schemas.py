@@ -333,6 +333,30 @@ class DeleteQuestionByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+class AddNewAnswerSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    text = fields.Str(required=True)
+    question_id = fields.Str(required=True)
+
+
+class GetAnswerByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
+class UpdateAnswerByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+    text = fields.Str(required=True)
+    question_id = fields.Str(required=True)
+
+
+class DeleteAnswerByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
 class AddNewAnalyticsSchema(Schema):
     uuid = fields.Str(required=True)
     event = fields.Int(required=True)

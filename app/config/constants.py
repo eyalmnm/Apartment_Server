@@ -53,5 +53,9 @@ class ErrorCodes(Enum):
     # Question Error Codes (1400 - 1499)
     ERROR_CODE_QUESTION_NOT_FOUND = 1400
 
+    # Answer Error Codes (1500 - 1599)
+    ERROR_CODE_ANSWER_NOT_FOUND = 1500
+
+
 def enum_to_string(enum):
     return enum.name.lower().replace('_', ' ').replace("cant", "can't").capitalize()

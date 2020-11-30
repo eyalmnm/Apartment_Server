@@ -527,15 +527,14 @@ class Question(db.Model):
 
 # ==================================   Answer  ================================
 class Answer(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.String(128), index=True, nullable=False, primary_key=True, autoincrement=True)
     text = db.Column(db.String(2048), index=True, nullable=False)  # in case of outbound - hint
     question_uuid = db.Column(db.String(128), db.ForeignKey('question.uuid'), nullable=False)
-    uuid = db.Column(db.String(128), index=True, nullable=False)
 
-    def __init__(self, text, question_uuid, uuid):
+    def __init__(self, text, question_uuid, id):
         self.text = text
         self.question_uuid = question_uuid
-        self.uuid = uuid
+        self.id = id
 
     def save(self):
         db.session.add(self)
