@@ -35,13 +35,13 @@ class Session(db.Model):
 
 # ==================================   User  ==================================
 class User(db.Model):
-    id = db.column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.column(db.String(64), index=True, unique=True, nullable=False)
-    email = db.column(db.String(128), index=True, unique=True, nullable=False)
-    phone = db.column(db.String(128), index=True, unique=False, nullable=False)
-    password_hash = db.column(db.String(128))
-    salt = db.column(db.String(128))
-    language = db.column(db.String(32))
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    email = db.Column(db.String(128), index=True, unique=True, nullable=False)
+    phone = db.Column(db.String(128), index=True, unique=False, nullable=False)
+    password_hash = db.Column(db.String(128))
+    salt = db.Column(db.String(128))
+    language = db.Column(db.String(32))
     status = db.Column(db.Integer, nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)  # ForeignKey Company table
 
@@ -56,8 +56,13 @@ class User(db.Model):
         self.status = status
         self.company_id = company_id
 
-    def save(self):
+    def save_admin(self):
         db.session.add(self)
+        db.session.commit()
+
+    def save(self, session):
+        db.session.add(self)
+        db.session.add(session)
         db.session.commit()
 
     def save_with_session(self, session):
@@ -492,7 +497,7 @@ class Question(db.Model):
     id = db.Column(db.String(128), primary_key=True, index=True, nullable=False)
     type = db.Column(db.Integer, index=True, nullable=False)
     text = db.Column(db.String(128), index=True, nullable=False)
-    questionnaire_uuid = db.Column(db.String(128), db.ForeignKey('questionnaire.uuid'), nullable=False)
+    questionnaire_uuid = db.Column(db.String(128), db.ForeignKey('questionnaire.id'), nullable=False)
     # uuid = db.Column(db.String(128), index=True, nullable=False)
 
     answers = relationship("Answer", backref="question")
@@ -527,9 +532,9 @@ class Question(db.Model):
 
 # ==================================   Answer  ================================
 class Answer(db.Model):
-    id = db.Column(db.String(128), index=True, nullable=False, primary_key=True, autoincrement=True)
+    id = db.Column(db.String(128), index=True, nullable=False, primary_key=True)
     text = db.Column(db.String(2048), index=True, nullable=False)  # in case of outbound - hint
-    question_uuid = db.Column(db.String(128), db.ForeignKey('question.uuid'), nullable=False)
+    question_uuid = db.Column(db.String(128), db.ForeignKey('question.id'), nullable=False)
 
     def __init__(self, text, question_uuid, id):
         self.text = text
@@ -557,7 +562,7 @@ class Answer(db.Model):
 # ==================================   Analytics  =============================
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    event = db.Column(db.Integer(64), index=True, nullable=False)
+    event = db.Column(db.Integer(), index=True, nullable=False)
     data = db.Column(db.String(2048), index=False, nullable=False)
 
     def __init__(self, event, data):

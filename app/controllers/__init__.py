@@ -1,8 +1,8 @@
-from app.controllers.user_manager import admin_user_register, is_admim_exist
+from app.controllers.user_manager import admin_user_register, is_admin_exist
 from app.config.user_status import UserStatus
 from app import db
 
-if is_admim_exist() is True:
+if is_admin_exist() is True:
     print('Admin User already added')
 else:
     db.create_all()

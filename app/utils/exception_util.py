@@ -1,11 +1,11 @@
 from app.config.constants import ErrorCodes, enum_to_string
-from config import Config
+from app_config import AppConfig
 
 
 def create_error_response(code, message):
     response = {'result_code': code.value, 'error_message': enum_to_string(code)}
 
-    if Config.ENV is 'DEV':
+    if AppConfig.ENV is 'DEV':
         if message:
             response["error_details"] = message
         else:

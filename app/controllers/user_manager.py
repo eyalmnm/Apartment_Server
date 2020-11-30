@@ -25,6 +25,11 @@ def generate_login_success_response(temp_uuid) -> json:
         print(ex)
 
 
+def generate_username_taken_response(username) -> json:
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_USERNAME_ALREADY_TAKEN, 'Username already taken: ' + username))
+
+
 def generate_user_permissions_not_enough():
     return jsonify(
         create_error_response(ErrorCodes.ERROR_CODE_USER_PERMISSIONS_NOT_ENOUGH, 'Username and permissions not enough'))
@@ -39,7 +44,8 @@ def generate_registration_success_response(temp_uuid) -> json:
 
 
 def generate_registration_failed_response(exe) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_REGISTRATION_FAILED, 'User registration failed ' + exe))
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_REGISTRATION_FAILED, 'User registration failed ' + str(exe)))
 
 
 def generate_user_not_login_response() -> json:
@@ -76,15 +82,17 @@ def register_new_user(data) -> json:
         company_id = data.get('company_id')
         phone = data.get('phone')
         email = data('email')
-
         session = db.session.query(Session).filter_by(uuid=uuid).first()
         if session:
             manager_username = session.username
             manager_user = db.session.query(User).filter_by(username=manager_username).first()
             if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or manager_user.status == UserStatus.ADMIN_USER.value:
+                if is_user_exist(user_name=username):
+                    return generate_username_taken_response(username)
                 salt = generate_uuid()
                 hash_pwd = get_hash_password(salt, password)
-                user = User(username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt, language=language,
+                user = User(username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt,
+                            language=language,
                             status=status, company_id=company_id)
                 if user:
                     temp_uuid = generate_uuid()
@@ -103,3 +111,53 @@ def register_new_user(data) -> json:
     except Exception as exc:
         print('user user registration failed: ' + str(exc))
         return generate_registration_failed_response(str(exc))
+
+
+def admin_user_register(data):
+    try:
+        username = data.get('username')
+        password = data.get('password')
+        language = data.get('language')
+        status = data.get('status')
+        email = data.get('email')
+        phone = data.get('phone')
+        company_id = data.get('company_id')
+        salt = generate_uuid()
+        hash_pwd = get_hash_password(salt=salt, password=password)
+        user = User(username=username, hash_pwd=hash_pwd, salt=salt, language=language, status=status, email=email, \
+                    phone=phone, company_id=company_id)
+        if user:
+            user.save_admin()
+        else:
+            raise Exception('Failed to create user')
+    except Exception as exe:
+        print('User registration failed')
+        if hasattr(exe, 'message'):
+            print(exe.message)
+        else:
+            print(exe)
+        return generate_registration_failed_response(exe)
+
+
+def is_admin_exist():
+    try:
+        user = db.session.query(User).filter_by(username='AdminApp').first()
+        if user:
+            return True
+        else:
+            return False
+    except Exception as ex:
+        print(ex)
+        return False
+
+
+def is_user_exist(user_name):
+    try:
+        user = db.session.query(User).filter_by(username=user_name).first()
+        if user:
+            return True
+        else:
+            return False
+    except Exception as ex:
+        print(ex)
+        return False
