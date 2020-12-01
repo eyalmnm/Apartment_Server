@@ -11,6 +11,13 @@ from app.utils.uuid_utils import check_hash_password
 # Ref: https://stackoverflow.com/a/2454618    //  To Dict
 # Ref: https://pyjwt.readthedocs.io/en/stable/  // JWT Library
 
+# For Company and Questionnaire
+# Ref: https://stackoverflow.com/questions/34802851/foreign-key-to-same-table-in-sqlalchemy
+# Ref: https://stackoverflow.com/questions/8872451/sqlalchemy-multiple-foreign-keys-to-same-table-with-compound-primary-key
+# Ref: https://stackoverflow.com/questions/16976967/sqlalchemy-multiple-foreign-keys-to-same-table
+# Ref: https://stackoverflow.com/questions/54913197/foreign-keys-and-inheritance-in-sql-alchemy
+# Ref: https://stackoverflow.com/questions/32898831/one-object-two-foreign-keys-to-the-same-table
+
 # ==================================   Session  ===============================
 class Session(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

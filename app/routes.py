@@ -238,7 +238,7 @@ def get_state():
         return 'Unknown Package'
 
 
-@app.route('update_state', methods=['PUT'])
+@app.route('/update_state', methods=['PUT'])
 def update_state():
     """
     uuid = fields.Str(required=True)
@@ -450,7 +450,7 @@ def add_entrance():
         return 'Unknown Package'
 
 
-@app.route('get_entrance', methods=['POST', 'GET'])
+@app.route('/get_entrance', methods=['POST', 'GET'])
 def get_entrance():
     """
     uuid = fields.Str(required=True)
@@ -621,7 +621,7 @@ def add_room():
         return 'Unknown Package'
 
 
-@app.route('get_room', methods=['POST', 'GET'])
+@app.route('/get_room', methods=['POST', 'GET'])
 def get_room():
     """
     uuid = fields.Str(required=True)
@@ -766,8 +766,8 @@ def update_question():
         return 'Unknown Package'
 
 
-@app.route('/delete_qeustion', methods=['DELETE'])
-def update_question():
+@app.route('/delete_question', methods=['DELETE'])
+def delete_question():
     """
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
