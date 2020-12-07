@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 
 import jwt
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app import db, app
 from app.utils.uuid_utils import check_hash_password
@@ -17,6 +17,7 @@ from app.utils.uuid_utils import check_hash_password
 # Ref: https://stackoverflow.com/questions/16976967/sqlalchemy-multiple-foreign-keys-to-same-table
 # Ref: https://stackoverflow.com/questions/54913197/foreign-keys-and-inheritance-in-sql-alchemy
 # Ref: https://stackoverflow.com/questions/32898831/one-object-two-foreign-keys-to-the-same-table
+# Ref: https://stackoverflow.com/questions/34775701/one-to-many-relationship-on-same-table-in-sqlalchemy
 
 # ==================================   Session  ===============================
 class Session(db.Model):
@@ -130,15 +131,18 @@ class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), index=True, nullable=False)
     registration_id = db.Column(db.String(128), index=True, nullable=False)
-    parent_company_id = db.Column(db.Integer(), db.ForeignKey('company.id'), nullable=False)
     address = db.Column(db.String(256), index=True, nullable=False)
     city = db.Column(db.String(256), index=True, nullable=False)
     state = db.Column(db.String(64), index=True, nullable=True)
     country = db.Column(db.String(64), index=True, nullable=False)
     zip_code = db.Column(db.String(64), index=True, nullable=False)
     phone = db.Column(db.String(64), index=True, nullable=False)
-    owner = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
     status = db.Column(db.Integer, nullable=False)
+    owner = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
+    parent_company_id = db.Column(db.Integer(), db.ForeignKey('company.id'), nullable=False)
+
+    # Child companies
+    sub_companies = relationship("Company", backref=backref('parent', remote_side=[id]), lazy='dynamic')
 
     # rooms = db.relationship('Room', backref='floor', lazy='dynamic') Change This line
     # textures = db.relationship('FloorTexture', backref='floor', lazy='dynamic')  Change This line
@@ -175,6 +179,7 @@ class Company(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        serialized["sub_companies"] = [company.to_dict() for company in self.sub_companies]
         # serialized["rooms"] = [room.to_dict() for room in self.rooms] Change This line
         # serialized["paintings"] = [painting.to_dict() for painting in self.paintings]  Change This line
         return serialized
@@ -470,14 +475,14 @@ class Questionnaire(db.Model):
     id = db.Column(db.String(128), primary_key=True, index=True, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
-    # uuid = db.Column(db.String(128), index=True, nullable=False)
+    parent_questionnaire = db.Column(db.String(128), db.ForeignKey("questionnaire.id"), nullable=False)
 
     questions = relationship("Question", backref="questionnaire")
 
-    def __init__(self, id, name, room_id):  # , uuid):
+    def __init__(self, id, name, room_id, parent_questionnaire):
         self.name = name
         self.room_id = room_id
-        # self.uuid = uuid
+        self.parent_questionnaire = parent_questionnaire
 
     def save(self):
         db.session.add(self)

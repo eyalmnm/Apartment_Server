@@ -4,6 +4,7 @@ from datetime import datetime
 import jwt
 from app import app
 
+# Ref: https://pyjwt.readthedocs.io/en/stable/  // JWT Library
 
 # Ref: https://stackoverflow.com/questions/9594125/salt-and-hash-a-password-in-python
 # Ref: https://realpython.com/token-based-authentication-with-flask/

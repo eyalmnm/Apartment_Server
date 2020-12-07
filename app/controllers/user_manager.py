@@ -14,6 +14,8 @@ from app.config.user_status import UserStatus
 # Ref: https://stackoverflow.com/questions/3332991/sqlalchemy-filter-multiple-columns
 # Ref: https://stackoverflow.com/a/44702268
 
+# Ref: https://pyjwt.readthedocs.io/en/stable/  // JWT Library
+
 registration_schema = RegistrationSchema()
 login_schema = LoginSchema()
 
