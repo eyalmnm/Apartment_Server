@@ -1,7 +1,7 @@
 from app import app
 from flask import request, make_response
 
-from app.controllers.user_manager import register_new_user, user_login
+from app.controllers.user_manager import register_new_user, user_login, the_admin_login
 from app.controllers.company_manager import register_new_company, register_new_sub_company, get_company_by_id, \
     update_company_by_id, delete_company_by_id
 from app.controllers.country_manager import add_new_country, get_country_by_id, update_country_by_id, \
@@ -33,6 +33,19 @@ def index():
 
 
 # ==================================   User  ==================================
+@app.route('/admin_login', methods=['POST'])
+def admin_login():
+    """
+    username = fields.Str(required=True)
+    password = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'uuid': uuid}
+    """
+    if check_auth_header_secret():
+        return the_admin_login()
+    else:
+        return 'Unknown Package'
+
+
 @app.route('/register_user', methods=['POST'])
 def register_user():
     """

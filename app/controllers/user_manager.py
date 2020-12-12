@@ -4,7 +4,7 @@ from flask import jsonify
 
 from app import db
 from app.config.constants import ErrorCodes
-from app.controllers.schemas import LoginSchema, RegistrationSchema
+from app.controllers.schemas import LoginSchema, RegistrationSchema, TheAdminLoginSchema
 from app.models import User, Session
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
@@ -18,6 +18,7 @@ from app.config.user_status import UserStatus
 
 registration_schema = RegistrationSchema()
 login_schema = LoginSchema()
+the_admin_login_schema = TheAdminLoginSchema()
 
 
 def generate_login_success_response(temp_uuid) -> json:
@@ -60,14 +61,31 @@ def user_login(data) -> json:
     password = data.get('password')
     company_id = data.get('company_id')
     user = db.session.query(User).filter_by(username=username).filter_by(company_id=company_id).first()
-    if user and check_hash_password(user.hash_pwd, user.salt, password):
+    if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
-        session_old = db.session.query(Session).filter_by(username=username)
+        session_old = db.session.query(Session).filter_by(username=username).first()
         if session_old:
             session_old.delete()
         session = Session(user.username, temp_uuid)
         if session:
             session.save()
+            return generate_login_success_response(temp_uuid)
+    else:
+        return generate_login_failed_response()
+
+
+@validate_schema(the_admin_login_schema)
+def the_admin_login(data):
+    username = data.get('username')
+    password = data.get('password')
+    user = db.session.query(User).filter_by(username=username).first()
+    if user and check_hash_password(user.password_hash, user.salt, password):
+        temp_uuid = generate_uuid()
+        session_old = db.session.query(Session).filter_by(username=username).first()
+        if session_old:
+            session_old.delete()
+        session = Session(username, temp_uuid)
+        session.save()
         return generate_login_success_response(temp_uuid)
     else:
         return generate_login_failed_response()

@@ -20,6 +20,11 @@ class RegistrationSchema(Schema):
     company_id = fields.Str(required=True)
 
 
+class TheAdminLoginSchema(Schema):
+    username = fields.Str(required=True)
+    password = fields.Str(required=True)
+
+
 # ==================================   Company  ===============================
 class RegisterNewCompanySchema(Schema):
     uuid = fields.Str(required=True)
