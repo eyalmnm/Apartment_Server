@@ -5,19 +5,18 @@ from marshmallow import Schema, fields, validate
 class LoginSchema(Schema):
     username = fields.Str(required=True)
     password = fields.Str(required=True)
-    company_id = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
 
 
 class RegistrationSchema(Schema):
     uuid = fields.Str(required=True)
     username = fields.Str(required=True)
-    password_hash = fields.Str(required=True)
-    salt = fields.Str(required=True)
+    password = fields.Str(required=True)
     language = fields.Str(required=False)
     status = fields.Int(required=True, validate=[validate.OneOf([1, 2, 5, 10])])
     email = fields.Str(required=True)
     phone = fields.Str(required=True)
-    company_id = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
 
 
 class TheAdminLoginSchema(Schema):

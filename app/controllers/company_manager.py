@@ -20,7 +20,7 @@ register_new_sub_company_schema = RegisterNewSubCompanySchema()
 register_new_company_schema = RegisterNewCompanySchema()
 
 
-def generate_registration_success_response(id: int) -> json:
+def generate_registration_success_response(id: str) -> json:
     return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'company_id': id})
 
 
@@ -58,30 +58,18 @@ def register_new_company(data):
     country = data.get('country')
     zip_code = data.get('zip_code')
     phone = data.get('phone')
+    company_uuid = generate_uuid()
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
         manager_username = session.username
         manager_user = db.session.query(User).filter_by(username=manager_username).first()
         if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or manager_user.status == UserStatus.ADMIN_USER.value:
             company = Company(name=name, registration_id=registration_id, address=address, city=city, state=state,
-                              country=country, zip_code=zip_code, phone=phone,
-                              status=CompanyStatus.ACTIVE.value)
+                              country=country, zip_code=zip_code, phone=phone, status=CompanyStatus.ACTIVE.value,
+                              parent_company_id='', uuid=company_uuid)
             company.save()
-            if company.id:
-                # salt = generate_uuid()
-                # hash_pwd = get_hash_password(salt, password)
-                # user = User(username=username, hash_pwd=hash_pwd, salt=salt, language=language,
-                #             status=UserStatus.SUPER_ADMIN_USER.value, company_id=company.id)
-                # user = user.save()
-                company.set_owner(manager_user.id)
-                return generate_registration_success_response(company.id)
-                # if user:
-                #     temp_uuid = generate_uuid()
-                #     session = Session(username=user.username, uuid=temp_uuid)
-                #     session.save()
-                #     return generate_registration_success_response(temp_uuid)
-                # else:
-                #     return generate_failed_to_create_user_response(username)
+            if company.uuid:
+                return generate_registration_success_response(company.uuid)
             else:
                 return generate_failed_to_create_company_response(name)
         else:

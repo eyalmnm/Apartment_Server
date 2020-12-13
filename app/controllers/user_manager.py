@@ -5,7 +5,7 @@ from flask import jsonify
 from app import db
 from app.config.constants import ErrorCodes
 from app.controllers.schemas import LoginSchema, RegistrationSchema, TheAdminLoginSchema
-from app.models import User, Session
+from app.models import Company, User, Session
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
 from app.utils.uuid_utils import check_hash_password, generate_uuid, get_hash_password
@@ -31,6 +31,11 @@ def generate_login_success_response(temp_uuid) -> json:
 def generate_username_taken_response(username) -> json:
     return jsonify(
         create_error_response(ErrorCodes.ERROR_CODE_USERNAME_ALREADY_TAKEN, 'Username already taken: ' + username))
+
+
+def generate_company_not_found(company_uuid) -> json:
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_COMPANY_NOT_FOUND, 'Company not found: ' + company_uuid))
 
 
 def generate_user_permissions_not_enough():
@@ -59,17 +64,18 @@ def generate_user_not_login_response() -> json:
 def user_login(data) -> json:
     username = data.get('username')
     password = data.get('password')
-    company_id = data.get('company_id')
-    user = db.session.query(User).filter_by(username=username).filter_by(company_id=company_id).first()
+    company_uuid = data.get('company_uuid')
+    user = db.session.query(User).filter_by(username=username).filter_by(company_uuid=company_uuid).first()
     if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
         session_old = db.session.query(Session).filter_by(username=username).first()
         if session_old:
-            session_old.delete()
-        session = Session(user.username, temp_uuid)
-        if session:
+            session_old.uuid = temp_uuid
+            session_old.update_session()
+        else:
+            session = Session(user.username, temp_uuid)
             session.save()
-            return generate_login_success_response(temp_uuid)
+        return generate_login_success_response(temp_uuid)
     else:
         return generate_login_failed_response()
 
@@ -83,9 +89,11 @@ def the_admin_login(data):
         temp_uuid = generate_uuid()
         session_old = db.session.query(Session).filter_by(username=username).first()
         if session_old:
-            session_old.delete()
-        session = Session(username, temp_uuid)
-        session.save()
+            session_old.uuid = temp_uuid
+            session_old.update_session()
+        else:
+            session = Session(username, temp_uuid)
+            session.save()
         return generate_login_success_response(temp_uuid)
     else:
         return generate_login_failed_response()
@@ -99,32 +107,36 @@ def register_new_user(data) -> json:
         password = data.get('password')
         language = data.get('language')
         status = data.get('status')
-        company_id = data.get('company_id')
+        company_uuid = data.get('company_uuid')
         phone = data.get('phone')
-        email = data('email')
+        email = data.get('email')
         session = db.session.query(Session).filter_by(uuid=uuid).first()
         if session:
-            manager_username = session.username
-            manager_user = db.session.query(User).filter_by(username=manager_username).first()
-            if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or manager_user.status == UserStatus.ADMIN_USER.value:
-                if is_user_exist(user_name=username):
-                    return generate_username_taken_response(username)
-                salt = generate_uuid()
-                hash_pwd = get_hash_password(salt, password)
-                user = User(username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt,
-                            language=language,
-                            status=status, company_id=company_id)
-                if user:
-                    temp_uuid = generate_uuid()
-                    session = Session(username=user.username, uuid=temp_uuid)
-                    user.save_with_session(session)
-                    return generate_registration_success_response(temp_uuid)
+            company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+            if company:
+                manager_username = session.username
+                manager_user = db.session.query(User).filter_by(username=manager_username).first()
+                if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or manager_user.status == UserStatus.ADMIN_USER.value:
+                    if is_user_exist(user_name=username):
+                        return generate_username_taken_response(username)
+                    salt = generate_uuid()
+                    hash_pwd = get_hash_password(salt, password)
+                    user = User(username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt,
+                                language=language,
+                                status=status, company_uuid=company.uuid)
+                    if user:
+                        temp_uuid = generate_uuid()
+                        session = Session(username=user.username, uuid=temp_uuid)
+                        user.save_with_session(session)
+                        return generate_registration_success_response(temp_uuid)
+                    else:
+                        # raise Exception('Failed to create user')
+                        exc = Exception('Failed to create user')
+                        generate_registration_failed_response(str(exc))
                 else:
-                    # raise Exception('Failed to create user')
-                    exc = Exception('Failed to create user')
-                    generate_registration_failed_response(str(exc))
+                    return generate_user_permissions_not_enough()
             else:
-                return generate_user_permissions_not_enough()
+                return generate_company_not_found(company_uuid)
         else:
             return generate_user_not_login_response()
 
@@ -145,7 +157,7 @@ def admin_user_register(data):
         salt = generate_uuid()
         hash_pwd = get_hash_password(salt=salt, password=password)
         user = User(username=username, hash_pwd=hash_pwd, salt=salt, language=language, status=status, email=email, \
-                    phone=phone, company_id=company_id)
+                    phone=phone, company_uuid=company_id)
         if user:
             user.save_admin()
         else:

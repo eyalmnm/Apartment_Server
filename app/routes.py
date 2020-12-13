@@ -56,7 +56,7 @@ def register_user():
     status = fields.Int(required=True, validate=[validate.OneOf([1, 2, 5, 10])])
     email = fields.Str(required=True)
     phone = fields.Str(required=True)
-    company_id = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
     :return: {'result_code': 0, 'error_message': '', 'uuid': uuid}
     """
     if check_auth_header_secret():
@@ -70,7 +70,7 @@ def login():
     """
     username = fields.Str(required=True)
     password = fields.Str(required=True)
-    company_id = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
     :return: {'result_code': 0, 'error_message': '', 'uuid': uuid}
     """
     if check_auth_header_secret():
@@ -84,15 +84,14 @@ def login():
 def register_company():
     """
     uuid = fields.Str(required=True)
-    name = fields.Str(required=True)
-    registration_id = fields.Str(required=True)
-    address = fields.Str(required=True)
-    city = fields.Str(required=True)
-    state = fields.Str(required=False)
-    country = fields.Str(required=True)
-    zip_code = fields.Int(required=True)
+    username = fields.Str(required=True)
+    password = fields.Str(required=True)
+    language = fields.Str(required=False)
+    status = fields.Int(required=True, validate=[validate.OneOf([1, 2, 5, 10])])
+    email = fields.Str(required=True)
     phone = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'company_id': id}
+    company_id = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'company_id': uuid}
     """
     if check_auth_header_secret():
         return register_new_company()

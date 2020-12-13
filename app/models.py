@@ -33,6 +33,9 @@ class Session(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def update_session(self):
+        db.session.commit()
+
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -51,10 +54,10 @@ class User(db.Model):
     salt = db.Column(db.String(128))
     language = db.Column(db.String(32))
     status = db.Column(db.Integer, nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)  # ForeignKey Company table
+    company_uuid = db.Column(db.String, db.ForeignKey('company.uuid'), nullable=True)  # ForeignKey Company table
 
     def __init__(self, username: str, email: str, phone: str, hash_pwd: str, salt: str, language: str, status: int,
-                 company_id: int):
+                 company_uuid: str):
         self.username = username
         self.email = email
         self.phone = phone
@@ -62,7 +65,7 @@ class User(db.Model):
         self.salt = salt
         self.language = language
         self.status = status
-        self.company_id = company_id
+        self.company_uuid = company_uuid
 
     def save_admin(self):
         db.session.add(self)
@@ -138,8 +141,8 @@ class Company(db.Model):
     zip_code = db.Column(db.String(64), index=True, nullable=False)
     phone = db.Column(db.String(64), index=True, nullable=False)
     status = db.Column(db.Integer, nullable=False)
-    owner = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=True)
-    parent_company_id = db.Column(db.Integer(), db.ForeignKey('company.id'), nullable=False)
+    uuid = db.Column(db.String(64), index=True, nullable=False)
+    parent_company_id = db.Column(db.Integer(), db.ForeignKey('company.id'), nullable=True)
 
     # Child companies
     sub_companies = relationship("Company", backref=backref('parent', remote_side=[id]), lazy='dynamic')
@@ -149,7 +152,7 @@ class Company(db.Model):
 
     def __init__(self, name: str, registration_id: str, address: str, city: str, state: str, country: str,
                  zip_code: str,
-                 phone: str, owner: int, status: int, parent_company_id: str):
+                 phone: str, status: int, parent_company_id: str, uuid: str):
         self.name = name
         self.registration_id = registration_id
         self.parent_company_id = parent_company_id
@@ -159,8 +162,8 @@ class Company(db.Model):
         self.country = country
         self.zip_code = zip_code
         self.phone = phone
-        self.owner = owner
         self.status = status
+        self.uuid = uuid
 
     def save(self):
         db.session.add(self)
