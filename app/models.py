@@ -309,16 +309,23 @@ class Street(db.Model):
 class Building(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), index=True, nullable=False)
-    street_id = db.Column(db.Integer, db.ForeignKey('street.id'), nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    address = db.Column(db.String(256), index=True, nullable=True)
+    # street_id = db.Column(db.Integer, db.ForeignKey('street.id'), nullable=False)
 
     entrances = relationship("Entrance", backref="building")
-    street = relationship("Street")
+    # street = relationship("Street")
 
-    def __init__(self, name, street_id, company_id):
+    def __init__(self, name, company_id, latitude, longitude, address):
         self.name = name
-        self.street_id = street_id
         self.company_id = company_id
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = address
+        # def __init__(self, name, street_id, company_id):
+        # self.street_id = street_id
 
     def save(self):
         db.session.add(self)
@@ -334,7 +341,7 @@ class Building(db.Model):
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["entrances"] = [entrance.to_dict() for entrance in self.entrances]
-        serialized["street"] = self.street.to_dict() if self.street else None
+        # serialized["street"] = self.street.to_dict() if self.street else None
         return serialized
 
     def __repr__(self):
