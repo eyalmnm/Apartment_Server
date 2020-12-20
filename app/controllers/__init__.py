@@ -1,5 +1,6 @@
 from app.controllers.user_manager import admin_user_register, is_admin_exist
 from app.config.user_status import UserStatus
+from app.config.secrets import admin
 from app import db
 
 if is_admin_exist() is True:
@@ -7,8 +8,8 @@ if is_admin_exist() is True:
 else:
     db.create_all()
     user_data = {
-        'username': 'AdminApp',
-        'password': 'AdminApp2020!@',
+        'username': admin.username,
+        'password': admin.password,
         'language': 'eng',
         'status': UserStatus.SUPER_ADMIN_USER.value,
         'phone': '+972522405134',
