@@ -10,6 +10,7 @@ from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
 from app.utils.uuid_utils import check_hash_password, generate_uuid, get_hash_password
 from app.config.user_status import UserStatus
+from app.config.secrets import admin
 
 # Ref: https://stackoverflow.com/questions/3332991/sqlalchemy-filter-multiple-columns
 # Ref: https://stackoverflow.com/a/44702268
@@ -173,7 +174,7 @@ def admin_user_register(data):
 
 def is_admin_exist():
     try:
-        user = db.session.query(User).filter_by(username='AdminApp').first()
+        user = db.session.query(User).filter_by(username=admin.get('username')).first()
         if user:
             return True
         else:

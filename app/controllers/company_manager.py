@@ -3,15 +3,15 @@ import json
 from flask import jsonify
 
 from app import db
+from app.config.company_status import CompanyStatus
 from app.config.constants import ErrorCodes
+from app.config.user_status import UserStatus
 from app.controllers.schemas import RegisterNewCompanySchema, RegisterNewSubCompanySchema, GetCompanyIyIdSchema, \
     UpdateCompanyByIdSchema, DeleteCompanyByIdSchema
 from app.models import Company, Session, User
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
-from app.config.user_status import UserStatus
-from app.config.company_status import CompanyStatus
-from app.utils.uuid_utils import generate_uuid, get_hash_password
+from app.utils.uuid_utils import generate_uuid
 
 delete_company_by_id_schema = DeleteCompanyByIdSchema()
 update_company_by_id_schema = UpdateCompanyByIdSchema()
@@ -195,3 +195,33 @@ def delete_company_by_id(data):
             return generate_user_permissions_not_enough()
     else:
         return generate_user_not_login_response()
+
+
+def insert_new_company(data):
+    uuid = data.get('uuid')
+    name = data.get('name')
+    registration_id = data.get('registration_id')
+    address = data.get('address')
+    city = data.get('city')
+    state = data.get('state')
+    country = data.get('country')
+    zip_code = data.get('zip_code')
+    phone = data.get('phone')
+    company = Company(name=name, registration_id=registration_id, address=address, city=city, state=state,
+                      country=country, \
+                      zip_code=zip_code, phone=phone, status=CompanyStatus.ACTIVE.value, parent_company_id='', \
+                      uuid=uuid)
+    company.save()
+    return generate_registration_success_response(company.uuid)
+
+
+def is_company_exist(uuid: str) -> bool:
+    try:
+        company = db.session.query(Company).filter_by(uuid=uuid).first()
+        if company:
+            return True
+        else:
+            return False
+    except Exception as ex:
+        print(ex)
+        return False
