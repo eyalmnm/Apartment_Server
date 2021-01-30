@@ -66,7 +66,8 @@ def user_login(data) -> json:
     username = data.get('username')
     password = data.get('password')
     company_uuid = data.get('company_uuid')
-    user = db.session.query(User).filter_by(username=username).filter_by(company_uuid=company_uuid).first()
+    # user = db.session.query(User).filter_by(username=username).filter_by(company_uuid=company_uuid).first()
+    user = User.query.filter((User.email == username) | (User.username == username)).first()
     if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
         session_old = db.session.query(Session).filter_by(username=username).first()
@@ -85,7 +86,8 @@ def user_login(data) -> json:
 def the_admin_login(data):
     username = data.get('username')
     password = data.get('password')
-    user = db.session.query(User).filter_by(username=username).first()
+    # user = db.session.query(User).filter_by(username=username).first()
+    user = User.query.filter((User.email == username) | (User.username == username)).first()
     if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
         session_old = db.session.query(Session).filter_by(username=username).first()
