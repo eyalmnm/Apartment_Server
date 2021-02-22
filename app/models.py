@@ -71,9 +71,8 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def save(self, session):
+    def save(self):
         db.session.add(self)
-        db.session.add(session)
         db.session.commit()
 
     def save_with_session(self, session):
@@ -195,131 +194,122 @@ class Company(db.Model):
         return '<Company {}>'.format(self.name)
 
 
-# ==================================   Country  ===============================
-class Country(db.Model):
+# ==================================   Project  ===============================
+class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), index=True, nullable=False)
+    company_id = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    address = db.Column(db.String(256), index=True, nullable=True)
+    project_uuid = db.Column(db.String(128))
+    contacts = db.relationship('Contact', backref='project', lazy='dynamic')
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid):
         self.name = name
+        self.company_id = company_id
+        self.latitude = latitude
+        self.longitude = longitude
+        self.address = address
+        self.project_uuid = project_uuid
 
     def save(self):
         db.session.add(self)
         db.session.commit()
 
-    def update_country(self):
+    def update_project(self):
         db.session.commit()
 
-    def delete_country(self):
+    def delete_project(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        serialized["contacts"] = [contact.to_dict() for contact in self.contacts]
+        return serialized
+
+
+# ==================================   Contact  ===============================
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(db.String(64), index=False, nullable=False)
+    project_uuid = db.Column(db.String(128), db.ForeignKey('project.project_uuid'), nullable=False)
+    name = db.Column(db.String(128), index=True, nullable=False)
+    position = db.Column(db.String(128), index=True, nullable=False)
+    company_name = db.Column(db.String(128), index=True, nullable=False)
+    phone = db.Column(db.String(64), index=True, nullable=False)
+    email = db.Column(db.String(128), index=True, nullable=False)
+
+    def __init__(self, uuid: str, company_uuid: str, name: str, position: str, company_name: str, phone: str,
+                 email: str):
+        self.uuid = uuid
+        self.company_uuid = company_uuid
+        self.name = name
+        self.position = position
+        self.company_name = company_name
+        self.phone = phone
+        self.email = email
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_contact(self):
+        db.session.commit()
+
+    def delete_contact(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        # TODO ADD The comments
+        return serialized
+
+
+# ==================================   Comment  ===============================
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), index=False, nullable=False)
+    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_comment(self):
+        db.session.commit()
+
+    def delete_comment(self):
         self.delete()
         db.session.commit()
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         return serialized
-
-    def __repr__(self):
-        return '<Country {}>'.format(self.name)
-
-
-# ==================================   State  =================================
-class State(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(128), index=True, nullable=False)
-    country_id = db.Column(db.Integer, db.ForeignKey('country.id'), nullable=False)
-
-    def __init__(self, name, country_id):
-        self.name = name
-        self.country_id = country_id
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update_state(self):
-        db.session.commit()
-
-    def delete_state(self):
-        self.delete()
-        db.session.commit()
-
-    def to_dict(self):
-        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        return serialized
-
-    def __repr__(self):
-        return '<State {}>'.format(self.name)
-
-
-# ==================================   City  ==================================
-class City(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(128), index=True, nullable=False)
-    state_id = db.Column(db.Integer, db.ForeignKey('state.id'), nullable=False)
-
-    def __init__(self, name, state_id):
-        self.name = name
-        self.state_id = state_id
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update_city(self):
-        db.session.commit()
-
-    def delete_city(self):
-        self.delete()
-        db.session.commit()
-
-    def to_dict(self):
-        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        return serialized
-
-    def __repr__(self):
-        return '<City {}>'.format(self.name)
-
-
-# ==================================   Street  ================================
-class Street(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(128), index=True, nullable=False)
-    city_id = db.Column(db.Integer, db.ForeignKey('city.id'), nullable=False)
-
-    def __init__(self, name, city_id):
-        self.name = name
-        self.city_id = city_id
-
-    def save(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update_street(self):
-        db.session.commit()
-
-    def delete_street(self):
-        self.delete()
-        db.session.commit()
-
-    def to_dict(self):
-        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        return serialized
-
-    def __repr__(self):
-        return '<Street {}>'.format(self.name)
 
 
 # ==================================   Building  ==============================
 class Building(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), index=True, nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    company_id = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     address = db.Column(db.String(256), index=True, nullable=True)
     # street_id = db.Column(db.Integer, db.ForeignKey('street.id'), nullable=False)
 
     entrances = relationship("Entrance", backref="building")
+
     # street = relationship("Street")
 
     def __init__(self, name, company_id, latitude, longitude, address):
@@ -346,6 +336,10 @@ class Building(db.Model):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["entrances"] = [entrance.to_dict() for entrance in self.entrances]
         # serialized["street"] = self.street.to_dict() if self.street else None
+        return serialized
+
+    def to_flat_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         return serialized
 
     def __repr__(self):

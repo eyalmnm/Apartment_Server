@@ -76,6 +76,43 @@ class DeleteCompanyByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Comment  ===============================
+class CommentSchema(Schema):
+    text = fields.Str(required=True)
+    author = fields.Str(required=False)
+    date_time = fields.Int(required=True)
+
+
+# ==================================   Contact  ===============================
+class AddProjectContactSchema(Schema):
+    name = fields.Str(required=True)
+    position = fields.Str(required=True)
+    company_name = fields.Str(required=True)
+    phone = fields.Str(required=True)
+    email = fields.Str(required=True)
+    isDecisionMaker = fields.Int(required=True)
+    text = fields.Str(required=False)  # fields.List(fields.Nested(CommentSchema), required=False)
+
+
+# ==================================   Project  ===============================
+class AddNewProjectSchema(Schema):
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    address = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    text = fields.Str(required=False)
+    contacts = fields.List(fields.Nested(AddProjectContactSchema), required=False)
+
+
+class GetProjectByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+
+
+# ==================================   Country  ===============================
 class AddNewCountrySchema(Schema):
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
@@ -97,6 +134,7 @@ class DeleteCountryByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   State  =================================
 class AddNewStateSchema(Schema):
     uuid = fields.Str(required=True)
     country_id = fields.Int(required=True)
@@ -120,6 +158,7 @@ class DeleteStateByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   City  ==================================
 class AddNewCitySchema(Schema):
     uuid = fields.Str(required=True)
     state_id = fields.Int(required=True)
@@ -143,6 +182,7 @@ class DeleteCityByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Street  ================================
 class AddNewStreetSchema(Schema):
     uuid = fields.Str(required=True)
     city_id = fields.Int(required=True)
@@ -166,11 +206,14 @@ class DeleteStreetByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Building  ==============================
 class AddNewBuildingSchema(Schema):
     uuid = fields.Str(required=True)
-    street_id = fields.Int(required=True)
-    company_id = fields.Int(required=True)
+    address = fields.Str(required=True)
+    company_uuid = fields.Int(required=True)
     name = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
 
 
 class GetBuildingByIdSchema(Schema):
@@ -178,12 +221,21 @@ class GetBuildingByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+class GetBuildingsListSchema(Schema):
+    uuid = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    company_uuid = fields.Int(required=True)
+
+
 class UpdateBuildingByIdSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Int(required=True)
-    street_id = fields.Int(required=True)
+    address = fields.Str(required=True)
     company_id = fields.Int(required=True)
     name = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
 
 
 class DeleteBuildingByIdSchema(Schema):
@@ -191,6 +243,7 @@ class DeleteBuildingByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Entrance  ==============================
 class AddNewEntranceSchema(Schema):
     uuid = fields.Str(required=True)
     building_id = fields.Int(required=True)
@@ -214,6 +267,7 @@ class DeleteEntranceByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Floor  =================================
 class AddNewFloorSchema(Schema):
     uuid = fields.Str(required=True)
     entrance_id = fields.Int(required=True)
@@ -237,6 +291,7 @@ class DeleteFloorByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Apartment  =============================
 class AddNewApartmentSchema(Schema):
     uuid = fields.Str(required=True)
     floor_id = fields.Int(required=True)
@@ -262,6 +317,7 @@ class DeleteApartmentByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Room  ==================================
 class AddNewRoomSchema(Schema):
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
@@ -287,6 +343,7 @@ class DeleteRoomByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Questionnaire  =========================
 class AddNewQuestionnaireSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
@@ -311,6 +368,7 @@ class DeleteQuestionnaireByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+# ==================================   Question  ==============================
 class AddNewQuestionSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
@@ -337,6 +395,7 @@ class DeleteQuestionByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+# ==================================   Answer  ================================
 class AddNewAnswerSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
@@ -361,6 +420,7 @@ class DeleteAnswerByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+# ==================================   Analytics  =============================
 class AddNewAnalyticsSchema(Schema):
     uuid = fields.Str(required=True)
     event = fields.Int(required=True)

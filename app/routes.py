@@ -4,13 +4,8 @@ from flask import request, make_response
 from app.controllers.user_manager import register_new_user, user_login, the_admin_login
 from app.controllers.company_manager import register_new_company, register_new_sub_company, get_company_by_id, \
     update_company_by_id, delete_company_by_id
-from app.controllers.country_manager import add_new_country, get_country_by_id, update_country_by_id, \
-    delete_country_by_id
-from app.controllers.state_manager import add_new_state, get_state_by_id, update_state_by_id, delete_state_by_id
-from app.controllers.city_manager import add_new_city, get_city_by_id, update_city_by_id, delete_city_by_id
-from app.controllers.street_manager import add_new_street, get_street_by_id, update_street_by_id, delete_street_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
-    delete_building_by_id
+    delete_building_by_id, get_buildings_list
 from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
@@ -22,6 +17,7 @@ from app.controllers.questionnaire_manager import add_new_questionnaire, get_que
 from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
     delete_question_by_id
 from app.controllers.answer_manager import add_new_answer, get_answer_by_id, update_answer_by_id, delete_answer_by_id
+from app.controllers.project_manager import add_new_project, get_project_by_id
 
 from app.controllers.analytics_manager import add_new_analytics
 
@@ -168,223 +164,36 @@ def delete_company():
         return 'Unknown Package'
 
 
-# ==================================   Country  ===============================
-@app.route('/add_country', methods=["POST"])
-def add_country():
+# ==================================   Project  ===============================
+@app.route('/add_project', methods=['POST'])
+def add_project():
     """
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'country_id': id}
+    address = fields.Str(required=True)
+    company_id = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    comment = fields.Str(required=False)
+    # TODO Add Contacts contacts = fields.List()
+    :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project_id': id}
     """
     if check_auth_header_secret():
-        return add_new_country()
+        return add_new_project()
     else:
         return 'Unknown Package'
 
 
-@app.route('/get_country', methods=["GET", "POST"])
-def get_country():
+@app.route('/get_project', methods=['GET', 'POST'])
+def get_project():
     """
     uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'countryData': country_dict}
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project': project.dict}
     """
     if check_auth_header_secret():
-        return get_country_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/update_country', methods=["PUT"])
-def update_country():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'countryData': country_dict}
-    """
-    if check_auth_header_secret():
-        return update_country_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/delete_country', methods=["DELETE"])
-def delete_country():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'country_id': id}
-    """
-    if check_auth_header_secret():
-        return delete_country_by_id()
-    else:
-        return 'Unknown Package'
-
-
-# ==================================   State  =================================
-@app.route('/add_state', methods=["POST"])
-def add_state():
-    """
-    uuid = fields.Str(required=True)
-    country_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'state_id': id}
-    """
-    if check_auth_header_secret():
-        return add_new_state()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/get_state', methods=["POST", "GET"])
-def get_state():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'stateData': state_dict}
-    """
-    if check_auth_header_secret():
-        return get_state_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/update_state', methods=['PUT'])
-def update_state():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    country_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'stateData': state_dict}
-    """
-    if check_auth_header_secret():
-        return update_state_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/delete_state', methods=['DELETE'])
-def delete_state():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'state_id': id}
-    """
-    if check_auth_header_secret():
-        return delete_state_by_id()
-    else:
-        return 'Unknown Package'
-
-
-# ==================================   City  ==================================
-@app.route('/add_city', methods=['POST'])
-def add_city():
-    """
-    uuid = fields.Str(required=True)
-    state_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'city_id': id}
-    """
-    if check_auth_header_secret():
-        return add_new_city()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/get_city', methods=['GET', 'POST'])
-def get_city():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'cityData': city_dict}
-    """
-    if check_auth_header_secret():
-        return get_city_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/update_city', methods=['PUT'])
-def update_city():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    state_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'cityData': city_dict}    """
-    if check_auth_header_secret():
-        return update_city_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/delete_city', methods=['DELETE'])
-def delete_city():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'city_id': id}
-    """
-    if check_auth_header_secret():
-        return delete_city_by_id()
-    else:
-        return 'Unknown Package'
-
-
-# ==================================   Street  ================================
-@app.route('/add_street', methods=['POST'])
-def add_street():
-    """
-    uuid = fields.Str(required=True)
-    city_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'street_id': id}
-    """
-    if check_auth_header_secret():
-        return add_new_street()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/get_city', methods=['POST', 'GET'])
-def get_street():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'streetData': street_dict}
-    """
-    if check_auth_header_secret():
-        return get_street_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/update_street', methods=['PUT'])
-def update_street():
-    """
-    uuid = fields.Str(required=True)
-    city_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-    id = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'streetData': street_dict}
-    """
-    if check_auth_header_secret():
-        return update_street_by_id()
-    else:
-        return 'Unknown Package'
-
-
-@app.route('/delete_street', methods=['DELETE'])
-def delete_street():
-    """
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'street_id': id}
-    """
-    if check_auth_header_secret():
-        return delete_street_by_id()
+        return get_project_by_id()
     else:
         return 'Unknown Package'
 
@@ -394,13 +203,30 @@ def delete_street():
 def add_building():
     """
     uuid = fields.Str(required=True)
-    street_id = fields.Int(required=True)
+    address = fields.Str(required=True)
     company_id = fields.Int(required=True)
     name = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
     :return: {'result_code': 0, 'error_message': '', 'building_id': id}
     """
     if check_auth_header_secret():
         return add_new_building()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_buildings', methods=['GET', 'POST'])
+def get_buildings():
+    """
+    uuid = fields.Str(required=True)
+    company_id = fields.Int(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'buildingsList': [{Building}]]}
+    """
+    if check_auth_header_secret():
+        return get_buildings_list()
     else:
         return 'Unknown Package'
 
@@ -848,6 +674,12 @@ def delete_answer():
         return 'Unknown Package'
 
 
+# ==================================   Suppliers  =============================
+# TODO
+# Holds, Name, type, contact person and so...  TODO
+# TODO
+
+
 # ==================================   Analytics  =============================
 @app.route('/add_analytics', methods=['POST'])
 def add_analytics():
@@ -870,7 +702,7 @@ def check_auth_header_secret():
     :return: true if it contains
     """
     bearer_header = request.headers.get('Authorization')
-    return 'bearer ' + app.config.get('SECRET_KEY') == bearer_header
+    return app.config.get('SECRET_KEY') == bearer_header
 
 # You need to call app.run last, as it blocks execution of anything after it until the server is killed.
 # Preferably, use the flask run command instead.

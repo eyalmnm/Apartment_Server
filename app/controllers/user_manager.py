@@ -63,6 +63,7 @@ def generate_user_not_login_response() -> json:
 
 @validate_schema(login_schema)
 def user_login(data) -> json:
+    print(f'login data {data}')
     username = data.get('username')
     password = data.get('password')
     company_uuid = data.get('company_uuid')
@@ -70,7 +71,7 @@ def user_login(data) -> json:
     user = User.query.filter((User.email == username) | (User.username == username)).first()
     if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
-        session_old = db.session.query(Session).filter_by(username=username).first()
+        session_old = db.session.query(Session).filter_by(username=user.username).first()
         if session_old:
             session_old.uuid = temp_uuid
             session_old.update_session()
@@ -87,7 +88,12 @@ def the_admin_login(data):
     username = data.get('username')
     password = data.get('password')
     # user = db.session.query(User).filter_by(username=username).first()
-    user = User.query.filter((User.email == username) | (User.username == username)).first()
+    user = None
+    try:
+        user = User.query.filter((User.email == username) | (User.username == username)).first()
+    except Exception as ex:
+        print(f'Exception thrown when trying to find a user {ex}')
+
     if user and check_hash_password(user.password_hash, user.salt, password):
         temp_uuid = generate_uuid()
         session_old = db.session.query(Session).filter_by(username=username).first()
@@ -129,8 +135,9 @@ def register_new_user(data) -> json:
                                 status=status, company_uuid=company.uuid)
                     if user:
                         temp_uuid = generate_uuid()
-                        session = Session(username=user.username, uuid=temp_uuid)
-                        user.save_with_session(session)
+                        # session = Session(username=user.username, uuid=temp_uuid)
+                        # user.save_with_session(session)
+                        user.save()
                         return generate_registration_success_response(temp_uuid)
                     else:
                         # raise Exception('Failed to create user')

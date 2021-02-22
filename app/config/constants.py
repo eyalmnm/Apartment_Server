@@ -35,6 +35,7 @@ class ErrorCodes(Enum):
 
     # Building Error Codes (800 - 899)
     ERROR_CODE_BUILDING_NOT_FOUND = 800
+    ERROR_CODE_BUILDINGS_NOT_FOUND = 801
 
     # Entrance Error Codes (900 - 999)
     ERROR_CODE_ENTRANCE_NOT_FOUND = 900
@@ -56,6 +57,10 @@ class ErrorCodes(Enum):
 
     # Answer Error Codes (1500 - 1599)
     ERROR_CODE_ANSWER_NOT_FOUND = 1500
+
+    # Answer Error Codes (1600 - 1699)
+    ERROR_CODE_FAILED_TO_STORE_PROJECT = 1600
+    ERROR_CODE_PROJECT_NOT_FOUND = 1601
 
 
 def enum_to_string(enum):
