@@ -57,7 +57,7 @@ def generate_user_not_login_response() -> json:
     return jsonify(create_error_response(ErrorCodes.ERROR_CODE_USER_NOT_LOGGED_IN, 'User not logged in'))
 
 
-def save_new_contact(a_contact, author, company_uuid, project_uuid, date_time):
+def save_new_contact(a_contact, author, company_uuid, date_time, project_uuid):
     temp_uuid = generate_uuid()
     text = a_contact.get('text')
     name = a_contact.get('name')
