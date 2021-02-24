@@ -112,6 +112,7 @@ def the_admin_login(data):
 def register_new_user(data) -> json:
     try:
         uuid = data.get('uuid')
+        fullname = data.get('fullname')
         username = data.get('username')
         password = data.get('password')
         language = data.get('language')
@@ -130,9 +131,7 @@ def register_new_user(data) -> json:
                         return generate_username_taken_response(username)
                     salt = generate_uuid()
                     hash_pwd = get_hash_password(salt, password)
-                    user = User(username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt,
-                                language=language,
-                                status=status, company_uuid=company.uuid)
+                    user = User(fullname=fullname, username=username, email=email, phone=phone, hash_pwd=hash_pwd, salt=salt,language=language, status=status, company_uuid=company.uuid)
                     if user:
                         temp_uuid = generate_uuid()
                         # session = Session(username=user.username, uuid=temp_uuid)

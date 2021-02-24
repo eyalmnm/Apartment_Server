@@ -47,6 +47,7 @@ class Session(db.Model):
 # ==================================   User  ==================================
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    fullname = db.column(db.String(64), index=True, unique=True, nullable=False)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(128), index=True, unique=True, nullable=False)
     phone = db.Column(db.String(128), index=True, unique=False, nullable=False)
@@ -56,8 +57,9 @@ class User(db.Model):
     status = db.Column(db.Integer, nullable=False)
     company_uuid = db.Column(db.String, db.ForeignKey('company.uuid'), nullable=True)  # ForeignKey Company table
 
-    def __init__(self, username: str, email: str, phone: str, hash_pwd: str, salt: str, language: str, status: int,
-                 company_uuid: str):
+    def __init__(self, fullname, username: str, email: str, phone: str, hash_pwd: str, salt: str, language: str,
+                 status: int, company_uuid: str):
+        self.fullname = fullname
         self.username = username
         self.email = email
         self.phone = phone
@@ -204,6 +206,7 @@ class Project(db.Model):
     address = db.Column(db.String(256), index=True, nullable=True)
     project_uuid = db.Column(db.String(128))
     contacts = db.relationship('Contact', backref='project', lazy='dynamic')
+    comments = db.relationship('ProjectComment', backref='contact', lazy='dynamic')
 
     def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid):
         self.name = name
@@ -227,6 +230,7 @@ class Project(db.Model):
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["contacts"] = [contact.to_dict() for contact in self.contacts]
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         return serialized
 
 
@@ -240,6 +244,7 @@ class Contact(db.Model):
     company_name = db.Column(db.String(128), index=True, nullable=False)
     phone = db.Column(db.String(64), index=True, nullable=False)
     email = db.Column(db.String(128), index=True, nullable=False)
+    comments = db.relationship('ContactComment', backref='contact', lazy='dynamic')
 
     def __init__(self, uuid: str, company_uuid: str, name: str, position: str, company_name: str, phone: str,
                  email: str):
@@ -264,16 +269,16 @@ class Contact(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        # TODO ADD The comments
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         return serialized
 
 
-# ==================================   Comment  ===============================
-class Comment(db.Model):
+# ==================================   ProjectComment  ========================
+class ProjectComment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     text = db.Column(db.String(2048), index=False, nullable=True)
-    parent_uuid = db.Column(db.String(64), index=False, nullable=False)
-    author = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
 
     def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
@@ -286,10 +291,40 @@ class Comment(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update_comment(self):
+    def update_project_comment(self):
         db.session.commit()
 
-    def delete_comment(self):
+    def delete_project_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
+
+
+# ==================================   ContactComment  ========================
+class ContactComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('contact.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_contact_comment(self):
+        db.session.commit()
+
+    def delete_contact_comment(self):
         self.delete()
         db.session.commit()
 

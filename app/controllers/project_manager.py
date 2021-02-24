@@ -1,17 +1,16 @@
 import json
+from datetime import datetime
+
 from flask import jsonify
 
 from app import db
 from app.config.constants import ErrorCodes
+from app.config.user_status import UserStatus
+from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema
+from app.models import Session, Company, User, Project, ProjectComment, Contact, ContactComment
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
-
-from app.models import Session, Company, User, Project, Comment, Contact
-from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema
-
-from app.config.user_status import UserStatus
 from app.utils.uuid_utils import generate_uuid
-from datetime import datetime
 
 add_new_project_schema = AddNewProjectSchema()
 get_project_by_id_schema = GetProjectByIdSchema()
@@ -32,8 +31,6 @@ def generate_project_data(project_data: dict) -> json:
              'project_data': project_data})
     except Exception as ex:
         print(f'Exception thrown when trying to send project data {ex}')
-
-
 
 
 def generate_failed_to_save_project_data(ex):
@@ -70,7 +67,7 @@ def save_new_contact(a_contact, author, company_uuid, date_time):
     position = a_contact.get('position')
     try:
         if text:
-            comment = Comment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
+            comment = ContactComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
             comment.save()
         contact = Contact(uuid=temp_uuid, company_uuid=company_uuid, name=name, position=position,
                           company_name=company_name, phone=phone, email=email)
@@ -98,15 +95,16 @@ def add_new_project(data):
         if company:
             manager_username = session.username
             manager_user = db.session.query(User).filter_by(username=manager_username).first()
-            if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or manager_user.status == UserStatus.ADMIN_USER.value:
+            if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or \
+                    manager_user.status == UserStatus.ADMIN_USER.value:
                 temp_uuid = generate_uuid()
                 project = Project(name=name, company_id=company_uuid, latitude=latitude, longitude=longitude,
                                   address=address, project_uuid=temp_uuid)
-                project_comment = Comment(text=comment, parent_uuid=temp_uuid, author=manager_user.id,
-                                          date_time=date_time)
+                project_comment = ProjectComment(text=comment, parent_uuid=temp_uuid, author=manager_user.fullname,
+                                                 date_time=date_time)
                 try:
                     for contact in contacts:
-                        save_new_contact(contact, manager_user.id, company_uuid, date_time)
+                        save_new_contact(contact, manager_user.fullname, company_uuid, date_time)
                     project_comment.save()
                     project.save()
                     return generate_project_successfully_saved(temp_uuid)
@@ -144,7 +142,7 @@ def get_project_by_id(data):
 
 def getComments(project_uuid):
     comments = []
-    stored_comments = db.session.query(Comment).filter_by(parent_uuid=project_uuid).all()
+    stored_comments = db.session.query(ProjectComment).filter_by(parent_uuid=project_uuid).all()
     for comment in stored_comments:
         comments.append(comment.to_dict())
     return comments
