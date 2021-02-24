@@ -46,6 +46,7 @@ def admin_login():
 def register_user():
     """
     uuid = fields.Str(required=True)
+    fullname = fields.Str(required=True)
     username = fields.Str(required=True)
     password = fields.Str(required=True)
     language = fields.Str(required=False)

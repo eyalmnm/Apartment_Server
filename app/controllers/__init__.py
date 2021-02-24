@@ -10,6 +10,7 @@ if is_admin_exist() is True:
 else:
     db.create_all()
     user_data = {
+        'fullname': admin.get('fullname'),
         'username': admin.get('username'),
         'password': admin.get('password'),
         'language': 'eng',

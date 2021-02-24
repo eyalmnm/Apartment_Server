@@ -47,7 +47,7 @@ class Session(db.Model):
 # ==================================   User  ==================================
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    fullname = db.column(db.String(64), index=True, unique=True, nullable=False)
+    fullname = db.Column(db.String(64), index=True, unique=False, nullable=False)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(128), index=True, unique=True, nullable=False)
     phone = db.Column(db.String(128), index=True, unique=False, nullable=False)
@@ -57,7 +57,7 @@ class User(db.Model):
     status = db.Column(db.Integer, nullable=False)
     company_uuid = db.Column(db.String, db.ForeignKey('company.uuid'), nullable=True)  # ForeignKey Company table
 
-    def __init__(self, fullname, username: str, email: str, phone: str, hash_pwd: str, salt: str, language: str,
+    def __init__(self, fullname: str, username: str, email: str, phone: str, hash_pwd: str, salt: str, language: str,
                  status: int, company_uuid: str):
         self.fullname = fullname
         self.username = username

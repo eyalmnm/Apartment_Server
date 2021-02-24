@@ -1,4 +1,5 @@
 admin = {
+    'fullname': 'Eyal Muchtar',
     'username': 'AppAdmin',
     'password': 'AdminApp2020!@'
 }
