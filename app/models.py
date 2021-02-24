@@ -247,7 +247,7 @@ class Contact(db.Model):
     comments = db.relationship('ContactComment', backref='contact', lazy='dynamic')
 
     def __init__(self, uuid: str, company_uuid: str, name: str, position: str, company_name: str, phone: str,
-                 email: str):
+                 email: str, project_uuid: str):
         self.uuid = uuid
         self.company_uuid = company_uuid
         self.name = name
@@ -255,6 +255,7 @@ class Contact(db.Model):
         self.company_name = company_name
         self.phone = phone
         self.email = email
+        self.project_uuid = project_uuid
 
     def save(self):
         db.session.add(self)

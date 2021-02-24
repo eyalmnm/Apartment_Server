@@ -156,6 +156,7 @@ def register_new_user(data) -> json:
 
 def admin_user_register(data):
     try:
+        fullname = data.get('fullname')
         username = data.get('username')
         password = data.get('password')
         language = data.get('language')
@@ -165,7 +166,7 @@ def admin_user_register(data):
         company_id = data.get('company_id')
         salt = generate_uuid()
         hash_pwd = get_hash_password(salt=salt, password=password)
-        user = User(username=username, hash_pwd=hash_pwd, salt=salt, language=language, status=status, email=email, \
+        user = User(fullname=fullname, username=username, hash_pwd=hash_pwd, salt=salt, language=language, status=status, email=email, \
                     phone=phone, company_uuid=company_id)
         if user:
             user.save_admin()

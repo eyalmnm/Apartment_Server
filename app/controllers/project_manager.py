@@ -57,7 +57,7 @@ def generate_user_not_login_response() -> json:
     return jsonify(create_error_response(ErrorCodes.ERROR_CODE_USER_NOT_LOGGED_IN, 'User not logged in'))
 
 
-def save_new_contact(a_contact, author, company_uuid, date_time):
+def save_new_contact(a_contact, author, company_uuid, project_uuid, date_time):
     temp_uuid = generate_uuid()
     text = a_contact.get('text')
     name = a_contact.get('name')
@@ -70,7 +70,7 @@ def save_new_contact(a_contact, author, company_uuid, date_time):
             comment = ContactComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
             comment.save()
         contact = Contact(uuid=temp_uuid, company_uuid=company_uuid, name=name, position=position,
-                          company_name=company_name, phone=phone, email=email)
+                          company_name=company_name, phone=phone, email=email, project_uuid=project_uuid)
         contact.save()
     except Exception as ex:
         print(f'Exception thrown when trying to find a user {ex}')
@@ -104,7 +104,7 @@ def add_new_project(data):
                                                  date_time=date_time)
                 try:
                     for contact in contacts:
-                        save_new_contact(contact, manager_user.fullname, company_uuid, date_time)
+                        save_new_contact(contact, manager_user.fullname, company_uuid, date_time, temp_uuid)
                     project_comment.save()
                     project.save()
                     return generate_project_successfully_saved(temp_uuid)
