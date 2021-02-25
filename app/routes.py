@@ -17,7 +17,7 @@ from app.controllers.questionnaire_manager import add_new_questionnaire, get_que
 from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
     delete_question_by_id
 from app.controllers.answer_manager import add_new_answer, get_answer_by_id, update_answer_by_id, delete_answer_by_id
-from app.controllers.project_manager import add_new_project, get_project_by_id
+from app.controllers.project_manager import add_new_project, get_project_by_id, get_projects_around_me
 
 from app.controllers.analytics_manager import add_new_analytics
 
@@ -197,6 +197,23 @@ def get_project():
         return get_project_by_id()
     else:
         return 'Unknown Package'
+
+
+@app.route('/get_projects', methods=['GET', 'POST'])
+def get_projects():
+    """
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'projects': list<project.dict>}
+    """
+    if check_auth_header_secret():
+        return get_projects_around_me()
+    else:
+        return 'Unknown Package'
+
+
 
 
 # ==================================   Building  ==============================

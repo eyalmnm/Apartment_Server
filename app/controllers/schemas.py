@@ -113,6 +113,13 @@ class GetProjectByIdSchema(Schema):
     project_uuid = fields.Str(required=True)
 
 
+class GetProjectsAroundMeSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+
+
 # ==================================   Country  ===============================
 class AddNewCountrySchema(Schema):
     uuid = fields.Str(required=True)

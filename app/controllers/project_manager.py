@@ -6,7 +6,7 @@ from flask import jsonify
 from app import db
 from app.config.constants import ErrorCodes
 from app.config.user_status import UserStatus
-from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema
+from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema, GetProjectsAroundMeSchema
 from app.models import Session, Company, User, Project, ProjectComment, Contact, ContactComment
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
@@ -14,6 +14,14 @@ from app.utils.uuid_utils import generate_uuid
 
 add_new_project_schema = AddNewProjectSchema()
 get_project_by_id_schema = GetProjectByIdSchema()
+get_projects_around_me_schema = GetProjectsAroundMeSchema()
+
+
+def generate_projects_data(projects_list: []) -> json:
+    return jsonify(
+        {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
+         'error_message': '',
+         'projects': projects_list})
 
 
 def generate_project_successfully_saved(uuid: str) -> json:
@@ -36,6 +44,11 @@ def generate_project_data(project_data: dict) -> json:
 def generate_failed_to_save_project_data(ex):
     return jsonify(
         create_error_response(ErrorCodes.ERROR_CODE_FAILED_TO_STORE_PROJECT, 'Failed to store project: ' + ex))
+
+
+def generate_failed_to_get_projects_data(ex):
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_FAILED_TO_GET_PROJECTS, 'Failed to get projects: ' + ex))
 
 
 def generate_user_permissions_not_enough():
@@ -99,7 +112,7 @@ def add_new_project(data):
                     manager_user.status == UserStatus.ADMIN_USER.value:
                 temp_uuid = generate_uuid()
                 project = Project(name=name, company_id=company_uuid, latitude=latitude, longitude=longitude,
-                                  address=address, project_uuid=temp_uuid)
+                                  address=address, project_uuid=temp_uuid, date_time=date_time)
                 project_comment = ProjectComment(text=comment, parent_uuid=temp_uuid, author=manager_user.fullname,
                                                  date_time=date_time)
                 try:
@@ -146,3 +159,27 @@ def getComments(project_uuid):
     for comment in stored_comments:
         comments.append(comment.to_dict())
     return comments
+
+
+@validate_schema(get_projects_around_me_schema)
+def get_projects_around_me(data):
+    uuid = data.get('uuid')
+    company_uuid = data.get('company_uuid')
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+        if company:
+            try:
+                projects = db.session.query(Project).filter_by(company_id=company_uuid).all()
+                projects_list = []
+                for project in projects:
+                    projects_list.append(project.to_dict())
+                return generate_projects_data(projects_list)
+            except Exception as ex:
+                return generate_failed_to_get_projects_data(ex)
+        else:
+            return generate_company_not_found_error(company_uuid)
+    else:
+        return generate_user_not_login_response()

@@ -61,6 +61,7 @@ class ErrorCodes(Enum):
     # Answer Error Codes (1600 - 1699)
     ERROR_CODE_FAILED_TO_STORE_PROJECT = 1600
     ERROR_CODE_PROJECT_NOT_FOUND = 1601
+    ERROR_CODE_FAILED_TO_GET_PROJECTS = 1602
 
 
 def enum_to_string(enum):

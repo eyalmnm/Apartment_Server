@@ -204,17 +204,19 @@ class Project(db.Model):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     address = db.Column(db.String(256), index=True, nullable=True)
-    project_uuid = db.Column(db.String(128))
+    project_uuid = db.Column(db.String(128), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
     contacts = db.relationship('Contact', backref='project', lazy='dynamic')
     comments = db.relationship('ProjectComment', backref='project', lazy='dynamic')
 
-    def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid):
+    def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid, date_time):
         self.name = name
         self.company_id = company_id
         self.latitude = latitude
         self.longitude = longitude
         self.address = address
         self.project_uuid = project_uuid
+        self.date_time = date_time
 
     def save(self):
         db.session.add(self)
