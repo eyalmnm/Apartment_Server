@@ -215,13 +215,35 @@ class DeleteStreetByIdSchema(Schema):
 
 
 # ==================================   Building  ==============================
-class AddNewBuildingSchema(Schema):
+class AddBuildingsToProjectBuildingSchema(Schema):
+    name = fields.Str(required=True)
+    address = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    text = fields.Str(required=False)
+
+
+class AddNewBuildingsToProjectSchema(Schema):
     uuid = fields.Str(required=True)
     address = fields.Str(required=True)
-    company_uuid = fields.Int(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     latitude = fields.Decimal(required=True)
     longitude = fields.Decimal(required=True)
+    text = fields.Str(required=False)
+    buildings = fields.List(fields.Nested(AddBuildingsToProjectBuildingSchema), required=False)
+
+
+class AddNewBuildingSchema(Schema):
+    uuid = fields.Str(required=True)
+    address = fields.Str(required=True)
+    company_id = fields.Str(required=True)
+    project_id = fields.Str(required=True)
+    name = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    text = fields.Str(required=False)
 
 
 class GetBuildingByIdSchema(Schema):

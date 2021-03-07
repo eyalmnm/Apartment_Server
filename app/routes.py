@@ -5,7 +5,7 @@ from app.controllers.user_manager import register_new_user, user_login, the_admi
 from app.controllers.company_manager import register_new_company, register_new_sub_company, get_company_by_id, \
     update_company_by_id, delete_company_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
-    delete_building_by_id, get_buildings_list
+    delete_building_by_id, get_buildings_list, add_new_buildings_to_project
 from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
@@ -75,6 +75,9 @@ def login():
     else:
         return 'Unknown Package'
 
+
+# @app.route('/change_password', methods=['POST']) TODO User MUST sent his current password and the new one all together
+# @app.route('/change_user_status', methods=['POST']) TODO Only admin user and super admin user can change
 
 # ==================================   Company  ===============================
 @app.route('/register_company', methods=['POST'])
@@ -214,15 +217,34 @@ def get_projects():
         return 'Unknown Package'
 
 
-
-
 # ==================================   Building  ==============================
+@app.route('/add_buildings_to_project', methods=['POST'])
+def add_buildings_to_project():
+    """
+    uuid = fields.Str(required=True)
+    address = fields.Str(required=True)
+    company_id = fields.Str(required=True)
+    project_id = fields.Str(required=True)
+    name = fields.Str(required=True)
+    latitude = fields.Decimal(required=True)
+    longitude = fields.Decimal(required=True)
+    text = fields.Str(required=False)
+    buildings = fields.List(fields.Nested(AddBuildingsToProjectBuildingSchema), required=False)
+    :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_buildings_to_project()
+    else:
+        return 'Unknown Package'
+
+
 @app.route('/add_building', methods=['POST'])
 def add_building():
     """
     uuid = fields.Str(required=True)
     address = fields.Str(required=True)
     company_id = fields.Int(required=True)
+    project_id = fields.Str(required=True)
     name = fields.Str(required=True)
     latitude = fields.Decimal(required=True)
     longitude = fields.Decimal(required=True)

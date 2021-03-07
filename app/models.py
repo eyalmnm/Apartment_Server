@@ -208,6 +208,7 @@ class Project(db.Model):
     date_time = db.Column(db.String(64), index=False, nullable=False)
     contacts = db.relationship('Contact', backref='project', lazy='dynamic')
     comments = db.relationship('ProjectComment', backref='project', lazy='dynamic')
+    buildings = db.relationship('Building', backref='project', lazy='dynamic')
 
     def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid, date_time):
         self.name = name
@@ -233,6 +234,7 @@ class Project(db.Model):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["contacts"] = [contact.to_dict() for contact in self.contacts]
         serialized["comments"] = [comment.to_dict() for comment in self.comments]
+        serialized["buildings"] = [building.to_dict() for building in self.buildings]
         return serialized
 
 
@@ -341,21 +343,24 @@ class Building(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), index=True, nullable=False)
     company_id = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
+    project_id = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     address = db.Column(db.String(256), index=True, nullable=True)
-    # street_id = db.Column(db.Integer, db.ForeignKey('street.id'), nullable=False)
-
+    uuid = db.Column(db.String(64), index=False, nullable=False)
+    comments = db.relationship('BuildingComment', backref='contact', lazy='dynamic')
     entrances = relationship("Entrance", backref="building")
 
     # street = relationship("Street")
 
-    def __init__(self, name, company_id, latitude, longitude, address):
+    def __init__(self, uuid, name, company_id, project_id, latitude, longitude, address):
+        self.uuid = uuid
         self.name = name
         self.company_id = company_id
         self.latitude = latitude
         self.longitude = longitude
         self.address = address
+        self.project_id = project_id
         # def __init__(self, name, street_id, company_id):
         # self.street_id = street_id
 
@@ -373,6 +378,7 @@ class Building(db.Model):
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["entrances"] = [entrance.to_dict() for entrance in self.entrances]
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         # serialized["street"] = self.street.to_dict() if self.street else None
         return serialized
 
@@ -382,6 +388,36 @@ class Building(db.Model):
 
     def __repr__(self):
         return '<Building {}>'.format(self.name)
+
+
+# ==================================   BuildingComment  =======================
+class BuildingComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_contact_comment(self):
+        db.session.commit()
+
+    def delete_contact_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
 
 
 # ==================================   Entrance  ==============================
