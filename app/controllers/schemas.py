@@ -106,6 +106,19 @@ class AddNewProjectSchema(Schema):
     text = fields.Str(required=False)
     contacts = fields.List(fields.Nested(AddProjectContactSchema), required=False)
 
+class RemoveContactFromProjectByContactSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    contact = fields.Nested(AddProjectContactSchema).required=True
+
+
+class AddNewContactToProjectByContactSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    contact = fields.Nested(AddProjectContactSchema).required=True
+
 
 class GetProjectByIdSchema(Schema):
     uuid = fields.Str(required=True)

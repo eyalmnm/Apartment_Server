@@ -230,6 +230,10 @@ class Project(db.Model):
         self.delete()
         db.session.commit()
 
+    def to_flat_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
+
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["contacts"] = [contact.to_dict() for contact in self.contacts]
@@ -658,6 +662,7 @@ class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     event = db.Column(db.Integer(), index=True, nullable=False)
     data = db.Column(db.String(2048), index=False, nullable=False)
+    # TODO ADD Date_Time UTC of now
 
     def __init__(self, event, data):
         self.event = event

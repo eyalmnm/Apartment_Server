@@ -28,11 +28,13 @@ def generate_delete_building_success_response(id) -> json:
     return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'building_id': id})
 
 
-def generate_building_of_project_save_successfuly(project_id: str) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'project_id': project_id})
+def generate_building_of_project_save_success_response(project_dict: dict) -> json:
+    return jsonify(
+        {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'projectData': project_dict})
 
-def generate_building_not_found_error(id) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_BUILDING_NOT_FOUND, 'Building not found: ' + id))
+
+def generate_building_not_found_error(building_id) -> json:
+    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_BUILDING_NOT_FOUND, 'Building not found: ' + building_id))
 
 
 def generate_buildings_not_found_error() -> json:
@@ -96,9 +98,10 @@ def save_building(a_building, company_id, project_id, author):
     address = a_building.get('address')
     text = a_building.get('text')
     building = Building(uuid=temp_uuid, name=name, company_id=company_id, project_id=project_id,
-                    latitude=latitude, longitude=longitude, address=address)
-    comment = BuildingComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
-    comment.save()
+                        latitude=latitude, longitude=longitude, address=address)
+    if not text:
+        comment = BuildingComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
+        comment.save()
     building.save()
 
 
@@ -124,15 +127,21 @@ def add_new_buildings_to_project(data):
                 if project:
                     temp_uuid = generate_uuid()
                     date_time = datetime.utcnow()
-                    main_building = Building(uuid=temp_uuid, name=name, company_id=company_uuid, project_id=project_uuid,
+                    main_building = Building(uuid=temp_uuid, name=name, company_id=company_uuid,
+                                             project_id=project_uuid,
                                              latitude=latitude, longitude=longitude, address=address)
-                    main_building_comment = BuildingComment(text=text, parent_uuid=temp_uuid, author=user.fullname,
-                                            date_time=date_time)
                     for building in buildings:
                         save_building(building, company_id=company_uuid, project_id=project_uuid, author=user.fullname)
-                    main_building_comment.save()
+
+                    if not text:
+                        main_building_comment = BuildingComment(text=text, parent_uuid=temp_uuid, author=user.fullname,
+                                                                date_time=date_time)
+                        main_building_comment.save()
                     main_building.save()
-                    return generate_building_of_project_save_successfuly(project_uuid)
+                    # Re query the project to have all its buildings include the new ones.
+                    project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+                    project_dict = project.to_dict()
+                    return generate_building_of_project_save_success_response(project_dict)
                 else:
                     return generate_project_not_found_error(project_uuid)
             else:

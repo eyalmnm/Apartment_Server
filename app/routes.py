@@ -17,7 +17,8 @@ from app.controllers.questionnaire_manager import add_new_questionnaire, get_que
 from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
     delete_question_by_id
 from app.controllers.answer_manager import add_new_answer, get_answer_by_id, update_answer_by_id, delete_answer_by_id
-from app.controllers.project_manager import add_new_project, get_project_by_id, get_projects_around_me
+from app.controllers.project_manager import add_new_project, get_project_by_id, get_projects_around_me, \
+    remove_contact_from_project_by_contact, add_new_contact_to_project_by_contact
 
 from app.controllers.analytics_manager import add_new_analytics
 
@@ -179,7 +180,7 @@ def add_project():
     latitude = fields.Decimal(required=True)
     longitude = fields.Decimal(required=True)
     comment = fields.Str(required=False)
-    # TODO Add Contacts contacts = fields.List()
+    contacts = fields.List(fields.Nested(AddProjectContactSchema), required=False)
     :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project_id': id}
     """
     if check_auth_header_secret():
@@ -215,6 +216,37 @@ def get_projects():
         return get_projects_around_me()
     else:
         return 'Unknown Package'
+
+
+@app.route('/remove_contact_from_project', methods=['POST'])
+def remove_contact_from_project():
+    """
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    contact = fields.Nested(AddProjectContactSchema), required=False)
+    :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project': project.dict}
+    """
+    if check_auth_header_secret():
+        return remove_contact_from_project_by_contact()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/add_contact_to_project', methods=['POST'])
+def add_contact_to_project():
+    """
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    contact = fields.Nested(AddProjectContactSchema), required=False)
+    :return: {'result_code': 0, 'error_message': '', 'project_uuid': uuid, 'project': project.dict}
+    """
+    if check_auth_header_secret():
+        return add_new_contact_to_project_by_contact()
+    else:
+        return 'Unknown Package'
+
 
 
 # ==================================   Building  ==============================
@@ -718,6 +750,9 @@ def delete_answer():
 # TODO
 # Holds, Name, type, contact person and so...  TODO
 # TODO
+
+
+# ==================================   Customer Feedback  =====================
 
 
 # ==================================   Analytics  =============================

@@ -6,7 +6,8 @@ from flask import jsonify
 from app import db
 from app.config.constants import ErrorCodes
 from app.config.user_status import UserStatus
-from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema, GetProjectsAroundMeSchema
+from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema, GetProjectsAroundMeSchema, \
+    RemoveContactFromProjectByContactSchema, AddNewContactToProjectByContactSchema
 from app.models import Session, Company, User, Project, ProjectComment, Contact, ContactComment
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
@@ -15,6 +16,8 @@ from app.utils.uuid_utils import generate_uuid
 add_new_project_schema = AddNewProjectSchema()
 get_project_by_id_schema = GetProjectByIdSchema()
 get_projects_around_me_schema = GetProjectsAroundMeSchema()
+remove_contact_from_project_by_contact_schema = RemoveContactFromProjectByContactSchema()
+add_new_contact_to_project_by_contact_schema = AddNewContactToProjectByContactSchema()
 
 
 def generate_projects_data(projects_list: []) -> json:
@@ -56,6 +59,11 @@ def generate_user_permissions_not_enough():
         create_error_response(ErrorCodes.ERROR_CODE_USER_PERMISSIONS_NOT_ENOUGH, 'Username and permissions not enough'))
 
 
+def generate_user_not_found_response():
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_USER_NOT_FOUND, 'Username not found'))
+
+
 def generate_project_not_found_error(project_uuid: str) -> json:
     return jsonify(
         create_error_response(ErrorCodes.ERROR_CODE_PROJECT_NOT_FOUND, 'Project not found: ' + project_uuid))
@@ -79,7 +87,7 @@ def save_new_contact(a_contact, author, company_uuid, date_time, project_uuid):
     email = a_contact.get('email')
     position = a_contact.get('position')
     try:
-        if text:
+        if not text:
             comment = ContactComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
             comment.save()
         contact = Contact(uuid=temp_uuid, company_uuid=company_uuid, name=name, position=position,
@@ -113,12 +121,16 @@ def add_new_project(data):
                 temp_uuid = generate_uuid()
                 project = Project(name=name, company_id=company_uuid, latitude=latitude, longitude=longitude,
                                   address=address, project_uuid=temp_uuid, date_time=date_time)
-                project_comment = ProjectComment(text=comment, parent_uuid=temp_uuid, author=manager_user.fullname,
-                                                 date_time=date_time)
                 try:
                     for contact in contacts:
                         save_new_contact(contact, manager_user.fullname, company_uuid, date_time, temp_uuid)
-                    project_comment.save()
+                        if not comment:
+                            project_comment = ProjectComment(text=comment, parent_uuid=temp_uuid,
+                                                             author=manager_user.fullname,
+                                                             date_time=date_time)
+
+                            project_comment.save()
+
                     project.save()
                     return generate_project_successfully_saved(temp_uuid)
                 except Exception as ex:
@@ -127,6 +139,64 @@ def add_new_project(data):
                 return generate_user_permissions_not_enough()
         else:
             return generate_company_not_found_error(id)
+    else:
+        return generate_user_not_login_response()
+
+
+@validate_schema(remove_contact_from_project_by_contact_schema)
+def remove_contact_from_project_by_contact(data):
+    uuid = data.get('uuid')
+    company_uuid = data.get('company_uuid')
+    project_uuid = data.get('project_uuid')
+    a_contact = data.get('contact')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+        if company:
+            project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+            if project:
+                contacts = db.session.query(Contact).filter_by(uuid=a_contact.uuid).all()
+                for contact in contacts:
+                    contact.parent_uuid = ""
+                    contact.update_contact()
+                project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+                project_dict = project.to_dict()
+                return generate_project_data(project_dict)
+            else:
+                return generate_project_not_found_error(project_uuid)
+        else:
+            return generate_company_not_found_error(company_uuid)
+    else:
+        return generate_user_not_login_response()
+
+
+@validate_schema(add_new_contact_to_project_by_contact_schema)
+def add_new_contact_to_project_by_contact(data):
+    uuid = data.get('uuid')
+    company_uuid = data.get('company_uuid')
+    project_uuid = data.get('project_uuid')
+    a_contact = data.get('contact')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        username = session.username
+        user = db.session.query(User).filter_by(username=username).first()
+        if user:
+            company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+            if company:
+                project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+                if project:
+                    date_time = datetime.utcnow()
+                    save_new_contact(a_contact=a_contact, author=user.fullname, company_uuid=company_uuid,
+                                     date_time=date_time, project_uuid=project_uuid)
+                    project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+                    project_dict = project.to_dict()
+                    return generate_project_data(project_dict)
+                else:
+                    return generate_project_not_found_error(project_uuid)
+            else:
+                return generate_company_not_found_error(company_uuid)
+        else:
+            return generate_user_not_found_response()
     else:
         return generate_user_not_login_response()
 
@@ -143,7 +213,7 @@ def get_project_by_id(data):
             project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
             if project:
                 project_dict = project.to_dict()
-                project_dict['comments'] = getComments(project.project_uuid)  # remove till it fixed
+                # project_dict['comments'] = getComments(project.project_uuid)  # remove till it fixed
                 return generate_project_data(project_dict)
             else:
                 return generate_project_not_found_error(project_uuid)
@@ -175,7 +245,7 @@ def get_projects_around_me(data):
                 projects = db.session.query(Project).filter_by(company_id=company_uuid).all()
                 projects_list = []
                 for project in projects:
-                    projects_list.append(project.to_dict())
+                    projects_list.append(project.to_flat_dict())
                 return generate_projects_data(projects_list)
             except Exception as ex:
                 return generate_failed_to_get_projects_data(ex)
