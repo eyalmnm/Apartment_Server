@@ -210,7 +210,8 @@ class Project(db.Model):
     comments = db.relationship('ProjectComment', backref='project', lazy='dynamic')
     buildings = db.relationship('Building', backref='project', lazy='dynamic')
 
-    def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid, date_time):
+    def __init__(self, name: str, company_id: str, latitude: float, longitude: float, address: str, project_uuid,
+                 date_time):
         self.name = name
         self.company_id = company_id
         self.latitude = latitude
@@ -412,10 +413,10 @@ class BuildingComment(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def update_contact_comment(self):
+    def update_building_comment(self):
         db.session.commit()
 
-    def delete_contact_comment(self):
+    def delete_building_comment(self):
         self.delete()
         db.session.commit()
 
@@ -427,14 +428,20 @@ class BuildingComment(db.Model):
 # ==================================   Entrance  ==============================
 class Entrance(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
-    building_id = db.Column(db.Integer, db.ForeignKey('building.id'), nullable=False)
+    company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
+    project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
+    building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
+    comments = db.relationship('EntranceComment', backref='entrance', lazy='dynamic')
+    floors = db.relationship("Floor", backref="entrance", lazy='dynamic')
 
-    floors = relationship("Floor", backref="entrance")
-
-    def __init__(self, name, building_id):
+    def __init__(self, uuid, name, company_uuid, project_uuid, building_uuid):
+        self.uuid = uuid
         self.name = name
-        self.building_id = building_id
+        self.company_uuid = company_uuid
+        self.project_uuid = project_uuid
+        self.building_uuid = building_uuid
 
     def save(self):
         db.session.add(self)
@@ -449,11 +456,42 @@ class Entrance(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         serialized["floors"] = [floor.to_dict() for floor in self.floors]
         return serialized
 
     def __repr__(self):
         return '<Entrance {}>'.format(self.name)
+
+
+# ==================================   EntranceComment  =======================
+class EntranceComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('entrance.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_entrance_comment(self):
+        db.session.commit()
+
+    def delete_entrance_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
 
 
 # ==================================   Floor  =================================
@@ -662,6 +700,7 @@ class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     event = db.Column(db.Integer(), index=True, nullable=False)
     data = db.Column(db.String(2048), index=False, nullable=False)
+
     # TODO ADD Date_Time UTC of now
 
     def __init__(self, event, data):

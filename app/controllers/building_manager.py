@@ -82,7 +82,7 @@ def add_new_building(data):
                                 longitude=longitude,
                                 project_id=project_id, address=address)
             building.save()
-            return generate_add_building_success_response(building.id)
+            return generate_add_building_success_response(building.uuid)
         else:
             return generate_company_not_found_error(id)
     else:

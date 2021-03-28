@@ -6,7 +6,7 @@ from app.controllers.company_manager import register_new_company, register_new_s
     update_company_by_id, delete_company_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
     delete_building_by_id, get_buildings_list, add_new_buildings_to_project
-from app.controllers.entrance_manager import add_new_entrance, get_entrance_by_id, update_entrance_by_id, \
+from app.controllers.entrance_manager import add_new_entrance, add_all_entrances, get_entrance_by_id, update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
 from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
@@ -350,14 +350,33 @@ def delete_building():
 def add_entrance():
     """
     uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
     building_id = fields.Int(required=True)
-    name = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'entrance_id': id}
+    name = fields.Str(required=True)
+    text = fields.Str(required=False)
+    :return: {'result_code': 0, 'error_message': '', 'entrance_uuid': uuid}
     """
     if check_auth_header_secret():
         return add_new_entrance()
     else:
         return 'Unknown Package'
+
+
+@app.route('/add_entrances', methods=['POST'])
+def add_entrances():
+    """
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    entrances = fields.List(fields.Nested(AddEntranceSchema), required=False)
+    :return: {'result_code': 0, 'error_message': '', 'project_data': project_dict}
+    """
+    if check_auth_header_secret():
+        return add_all_entrances()
+    else:
+        return 'Unknown Package'
+
 
 
 @app.route('/get_entrance', methods=['POST', 'GET'])

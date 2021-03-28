@@ -106,18 +106,19 @@ class AddNewProjectSchema(Schema):
     text = fields.Str(required=False)
     contacts = fields.List(fields.Nested(AddProjectContactSchema), required=False)
 
+
 class RemoveContactFromProjectByContactSchema(Schema):
     uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
-    contact = fields.Nested(AddProjectContactSchema).required=True
+    contact = fields.Nested(AddProjectContactSchema).required = True
 
 
 class AddNewContactToProjectByContactSchema(Schema):
     uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
-    contact = fields.Nested(AddProjectContactSchema).required=True
+    contact = fields.Nested(AddProjectContactSchema).required = True
 
 
 class GetProjectByIdSchema(Schema):
@@ -131,100 +132,6 @@ class GetProjectsAroundMeSchema(Schema):
     company_uuid = fields.Str(required=True)
     latitude = fields.Decimal(required=True)
     longitude = fields.Decimal(required=True)
-
-
-# ==================================   Country  ===============================
-class AddNewCountrySchema(Schema):
-    uuid = fields.Str(required=True)
-    name = fields.Str(required=True)
-
-
-class GetCountryByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-class UpdateCountryByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class DeleteCountryByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-# ==================================   State  =================================
-class AddNewStateSchema(Schema):
-    uuid = fields.Str(required=True)
-    country_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class GetStateByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-class UpdateStateByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    country_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class DeleteStateByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-# ==================================   City  ==================================
-class AddNewCitySchema(Schema):
-    uuid = fields.Str(required=True)
-    state_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class GetCityByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-class UpdateCityByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    state_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class DeleteCityByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-# ==================================   Street  ================================
-class AddNewStreetSchema(Schema):
-    uuid = fields.Str(required=True)
-    city_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class GetStreetByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-
-
-class UpdateStreetByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
-    city_id = fields.Int(required=True)
-    name = fields.Str(required=True)
-
-
-class DeleteStreetByIdSchema(Schema):
-    uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
 
 
 # ==================================   Building  ==============================
@@ -289,8 +196,26 @@ class DeleteBuildingByIdSchema(Schema):
 # ==================================   Entrance  ==============================
 class AddNewEntranceSchema(Schema):
     uuid = fields.Str(required=True)
-    building_id = fields.Int(required=True)
-    name = fields.Int(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    text = fields.Str(required=False)
+
+
+class AddNewEntranceToBuildingsSchema(Schema):
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    text = fields.Str(required=False)
+
+
+class AddAllEntrancesSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    entrances = fields.List(fields.Nested(AddNewEntranceToBuildingsSchema), required=True)
 
 
 class GetEntranceByIdSchema(Schema):
