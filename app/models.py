@@ -497,14 +497,22 @@ class EntranceComment(db.Model):
 # ==================================   Floor  =================================
 class Floor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
+    company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
+    project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
+    building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
     entrance_id = db.Column(db.Integer, db.ForeignKey('entrance.id'), nullable=False)
-
+    comments = db.relationship('FloorComment', backref='floor', lazy='dynamic')
     apartments = relationship("Apartment", backref="floor")
 
-    def __init__(self, name, entrance_id):
-        self.name = name
+    def __init__(self, uuid, company_uuid, project_uuid, building_uuid, entrance_id, name):
+        self.uuid = uuid
+        self.company_uuid = company_uuid
+        self.project_uuid = project_uuid
+        self.building_uuid = building_uuid
         self.entrance_id = entrance_id
+        self.name = name
 
     def save(self):
         db.session.add(self)
@@ -520,22 +528,58 @@ class Floor(db.Model):
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["apartments"] = [apartment.to_dict() for apartment in self.apartments]
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         return serialized
 
     def __repr__(self):
         return '<Floor {}>'.format(self.name)
 
 
+# ==================================   FloorComment  ==========================
+class FloorComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('floor.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_floor_comment(self):
+        db.session.commit()
+
+    def delete_floor_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
+
+
 # ==================================   Apartment  =============================
 class Apartment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
+    company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
+    project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
+    building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
+    entrance_id = db.Column(db.Integer, db.ForeignKey('entrance.id'), nullable=False)
     floor_id = db.Column(db.Integer, db.ForeignKey('floor.id'), nullable=False)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
-
+    comments = db.relationship('ApartmentComment', backref='floor', lazy='dynamic')
     rooms = relationship("Room", backref="apartment")
 
-    def __init__(self, name, floor_id, company_id):
+    def __init__(self, uuid, name, floor_id, company_id):
+        self.uuid = uuid
         self.name = name
         self.floor_id = floor_id
         self.company_id = company_id
@@ -554,22 +598,55 @@ class Apartment(db.Model):
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         serialized["rooms"] = [room.to_dict() for room in self.rooms]
+        serialized["comments"] = [comment.to_dict() for comment in self.comments]
         return serialized
 
     def __repr__(self):
         return '<Apartment {}>'.format(self.name)
 
 
+# ==================================   ApartmentComment  ======================
+class ApartmentComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('apartment.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_apartment_comment(self):
+        db.session.commit()
+
+    def delete_apartment_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
+
+
 # ==================================   Room  ==================================
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     type = db.Column(db.Integer, index=False, nullable=False)
     apartment_id = db.Column(db.Integer, db.ForeignKey('apartment.id'), nullable=False)
 
     questionnaires = relationship("Questionnaire", backref="room")
 
-    def __init__(self, name, apartment_id, type):
+    def __init__(self, uuid, name, apartment_id, type):
+        self.uuid = uuid
         self.name = name
         self.type = type
         self.apartment_id = apartment_id
@@ -598,14 +675,14 @@ class Room(db.Model):
 class Questionnaire(db.Model):
     id = db.Column(db.String(128), primary_key=True, index=True, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
-    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
+    room_uuid = db.Column(db.String(64), db.ForeignKey('room.uuid'), nullable=False)
     parent_questionnaire = db.Column(db.String(128), db.ForeignKey("questionnaire.id"), nullable=False)
 
     questions = relationship("Question", backref="questionnaire")
 
-    def __init__(self, id, name, room_id, parent_questionnaire):
+    def __init__(self, name, room_uuid, parent_questionnaire):
         self.name = name
-        self.room_id = room_id
+        self.room_id = room_uuid
         self.parent_questionnaire = parent_questionnaire
 
     def save(self):

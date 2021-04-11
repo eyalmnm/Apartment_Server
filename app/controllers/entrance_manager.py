@@ -11,8 +11,7 @@ from app.utils.uuid_utils import generate_uuid
 
 from app.models import User, Company, Project, Building, Session, Entrance, EntranceComment
 from app.controllers.schemas import AddNewEntranceSchema, AddAllEntrancesSchema, GetEntranceByIdSchema, \
-    UpdateEntranceByIdSchema, \
-    DeleteEntranceByIdSchema
+    UpdateEntranceByIdSchema, DeleteEntranceByIdSchema
 
 add_new_entrance_schema = AddNewEntranceSchema()
 add_all_entrances_schema = AddAllEntrancesSchema()
