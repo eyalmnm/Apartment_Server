@@ -430,18 +430,20 @@ class Entrance(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
+    order = db.Column(db.Integer, index=True, nullable=False)
     company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
     project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
     building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
     comments = db.relationship('EntranceComment', backref='entrance', lazy='dynamic')
     floors = db.relationship("Floor", backref="entrance", lazy='dynamic')
 
-    def __init__(self, uuid, name, company_uuid, project_uuid, building_uuid):
+    def __init__(self, uuid, name, company_uuid, project_uuid, building_uuid, order):
         self.uuid = uuid
         self.name = name
         self.company_uuid = company_uuid
         self.project_uuid = project_uuid
         self.building_uuid = building_uuid
+        self.order = order
 
     def save(self):
         db.session.add(self)
@@ -499,20 +501,22 @@ class Floor(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
+    order = db.Column(db.Integer, index=True, nullable=False)
     company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
     project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
     building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
-    entrance_id = db.Column(db.Integer, db.ForeignKey('entrance.id'), nullable=False)
+    entrance_uuid = db.Column(db.String(64), db.ForeignKey('entrance.uuid'), nullable=False)
     comments = db.relationship('FloorComment', backref='floor', lazy='dynamic')
     apartments = relationship("Apartment", backref="floor")
 
-    def __init__(self, uuid, company_uuid, project_uuid, building_uuid, entrance_id, name):
+    def __init__(self, uuid, company_uuid, project_uuid, building_uuid, entrance_uuid, name, order):
         self.uuid = uuid
         self.company_uuid = company_uuid
         self.project_uuid = project_uuid
         self.building_uuid = building_uuid
-        self.entrance_id = entrance_id
+        self.entrance_uuid = entrance_uuid
         self.name = name
+        self.order = order
 
     def save(self):
         db.session.add(self)
@@ -573,16 +577,19 @@ class Apartment(db.Model):
     company_uuid = db.Column(db.String(64), db.ForeignKey('company.uuid'), nullable=False)
     project_uuid = db.Column(db.String(64), db.ForeignKey('project.project_uuid'), nullable=False)
     building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
-    entrance_id = db.Column(db.Integer, db.ForeignKey('entrance.id'), nullable=False)
-    floor_id = db.Column(db.Integer, db.ForeignKey('floor.id'), nullable=False)
+    entrance_uuid = db.Column(db.String(64), db.ForeignKey('entrance.uuid'), nullable=False)
+    floor_uuid = db.Column(db.String(64), db.ForeignKey('floor.uuid'), nullable=False)
     comments = db.relationship('ApartmentComment', backref='floor', lazy='dynamic')
     rooms = relationship("Room", backref="apartment")
 
-    def __init__(self, uuid, name, floor_id, company_id):
+    def __init__(self, uuid, name, floor_uuid, entrance_uuid, building_uuid, project_uuid, company_uuid):
         self.uuid = uuid
         self.name = name
-        self.floor_id = floor_id
-        self.company_id = company_id
+        self.floor_uuid = floor_uuid
+        self.entrance_uuid = entrance_uuid
+        self.building_uuid = building_uuid
+        self.project_uuid = project_uuid
+        self.company_uuid = company_uuid
 
     def save(self):
         db.session.add(self)
@@ -641,8 +648,8 @@ class Room(db.Model):
     uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     type = db.Column(db.Integer, index=False, nullable=False)
-    apartment_id = db.Column(db.Integer, db.ForeignKey('apartment.id'), nullable=False)
-
+    apartment_uuid = db.Column(db.String(64), db.ForeignKey('apartment.uuid'), nullable=False)
+    # comments = db.relationship('RoomComment', backref='room', lazy='dynamic')
     questionnaires = relationship("Questionnaire", backref="room")
 
     def __init__(self, uuid, name, apartment_id, type):
@@ -664,11 +671,42 @@ class Room(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        # serialized["comments"] = [comment.to_dict() for comment in self.comments]
         serialized["questionnaires"] = [questionnaire.to_dict() for questionnaire in self.questionnaires]
         return serialized
 
     def __repr__(self):
         return '<Apartment {}>'.format(self.name)
+
+
+# ==================================   RoomComment  ===========================
+class RoomComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(2048), index=False, nullable=True)
+    parent_uuid = db.Column(db.String(64), db.ForeignKey('room.uuid'), nullable=False)
+    author = db.Column(db.String(64), index=False, nullable=False)
+    date_time = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+        self.text = text
+        self.parent_uuid = parent_uuid
+        self.author = author
+        self.date_time = date_time
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_room_comment(self):
+        db.session.commit()
+
+    def delete_room_comment(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
 
 
 # ==================================   Questionnaire  =========================

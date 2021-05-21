@@ -68,6 +68,8 @@ def add_new_entrance(data):
     building_uuid = data.get('building_uuid')
     name = data.get('name')
     text = data.get('text')
+    order = data.get('order')
+    date_time = datetime.utcnow()
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
         user_name = session.username
@@ -80,9 +82,9 @@ def add_new_entrance(data):
                 if project:
                     building = db.session.query(Building).filter_by(uuid=building_uuid).first()
                     if building:
-                        entrance = Entrance(temp_uuid, name, company_uuid, project_uuid, building_uuid)
-                        if not text:
-                            comment = EntranceComment(text, temp_uuid, user.fullname)
+                        entrance = Entrance(temp_uuid, name, company_uuid, project_uuid, building_uuid, order)
+                        if text:
+                            comment = EntranceComment(text, temp_uuid, user.fullname, date_time)
                             comment.save()
 
                         entrance.save()

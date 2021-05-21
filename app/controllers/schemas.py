@@ -201,6 +201,7 @@ class AddNewEntranceSchema(Schema):
     building_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     text = fields.Str(required=False)
+    order = fields.Int(required=True)
 
 
 class AddNewEntranceToBuildingsSchema(Schema):
@@ -228,6 +229,7 @@ class UpdateEntranceByIdSchema(Schema):
     id = fields.Str(required=True)
     building_id = fields.Int(required=True)
     name = fields.Int(required=True)
+    order = fields.Int(required=True)
 
 
 class DeleteEntranceByIdSchema(Schema):
@@ -238,8 +240,12 @@ class DeleteEntranceByIdSchema(Schema):
 # ==================================   Floor  =================================
 class AddNewFloorSchema(Schema):
     uuid = fields.Str(required=True)
-    entrance_id = fields.Int(required=True)
-    name = fields.Int(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    entrance_uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    order = fields.Int(required=True)
 
 
 class GetFloorByIdSchema(Schema):
@@ -252,6 +258,7 @@ class UpdateFloorByIdSchema(Schema):
     id = fields.Str(required=True)
     entrance_id = fields.Int(required=True)
     name = fields.Int(required=True)
+    order = fields.Int(required=True)
 
 
 class DeleteFloorByIdSchema(Schema):
@@ -262,8 +269,10 @@ class DeleteFloorByIdSchema(Schema):
 # ==================================   Apartment  =============================
 class AddNewApartmentSchema(Schema):
     uuid = fields.Str(required=True)
-    floor_id = fields.Int(required=True)
-    company_id = fields.Int(required=True)
+    floor_uuid = fields.Str(required=True)
+    entrance_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
     name = fields.Int(required=True)
 
 

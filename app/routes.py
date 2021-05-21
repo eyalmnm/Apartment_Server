@@ -369,7 +369,10 @@ def add_entrances():
     uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
-    entrances = fields.List(fields.Nested(AddEntranceSchema), required=False)
+    building_uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    text = fields.Str(required=False)
+    order = fields.Int(required=True)
     :return: {'result_code': 0, 'error_message': '', 'project_data': project_dict}
     """
     if check_auth_header_secret():
@@ -425,9 +428,12 @@ def delete_entrance():
 def add_floor():
     """
     uuid = fields.Str(required=True)
-    entrance_id = fields.Int(required=True)
-    name = fields.Int(required=True)
-    :return: {'result_code': 0, 'error_message': '', 'floor_id': id}
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    entrance_uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    :return: {'result_code 0, 'error_message': '', 'floor_id': id}
     """
     if check_auth_header_secret():
         return add_new_floor()
@@ -481,8 +487,10 @@ def delete_floor():
 def add_apartment():
     """
     uuid = fields.Str(required=True)
-    floor_id = fields.Int(required=True)
-    company_id = fields.Int(required=True)
+    floor_uuid = fields.Str(required=True)
+    entrance_uuid = fields.Str(required=True)
+    building_uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
     name = fields.Int(required=True)
     :return: {'result_code': 0, 'error_message': '', 'apartment_id': id}
     """

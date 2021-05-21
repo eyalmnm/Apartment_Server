@@ -5,6 +5,7 @@ from app import db
 from app.config.constants import ErrorCodes
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
+from app.utils.uuid_utils import generate_uuid
 
 from app.models import Session, Entrance, Floor
 from app.controllers.schemas import AddNewFloorSchema, GetFloorByIdSchema, UpdateFloorByIdSchema, DeleteFloorByIdSchema
@@ -38,17 +39,23 @@ def generate_user_not_login_response() -> json:
 @validate_schema(add_new_floor_schema)
 def add_new_floor(data):
     uuid = data.get('uuid')
-    entrance_id = data.get('entrance_id')
+    entrance_uuid = data.get('entrance_uuid')
     name = data.get('name')
+    company_uuid = data.get('company_uuid')
+    project_uuid = data.get('project_uuid')
+    building_uuid = data.get('building_uuid')
+    order = data.get('order')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        entrance = db.session.query(Entrance).get(entrance_id)
+        entrance = db.session.query(Entrance).filter_by(uuid=entrance_uuid).filter_by(company_uuid=company_uuid).\
+            filter_by(project_uuid=project_uuid).filter_by(building_uuid=building_uuid).first()
         if entrance:
-            floor = Floor(name=name, entrance_id=entrance_id)
+            floor_uuid = generate_uuid()
+            floor = Floor(floor_uuid, company_uuid, project_uuid, building_uuid, entrance_uuid, name, order)
             floor.save()
             return generate_add_floor_success_response(floor.id)
         else:
-            return generate_entrance_not_found_error(entrance_id)
+            return generate_entrance_not_found_error(entrance_uuid)
     else:
         return generate_user_not_login_response()
 

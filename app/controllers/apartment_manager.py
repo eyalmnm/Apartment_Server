@@ -44,21 +44,24 @@ def generate_user_not_login_response() -> json:
 def add_new_apartment(data):
     uuid = data.get('uuid')
     name = data.get('name')
-    company_id = data.get('company_id')
-    floor_id = data.get('floor_id')
+    company_uuid = data.get('company_uuid')
+    project_uuid = data.get('project_uuid')
+    building_uuid = data.get('building_uuid')
+    entrance_uuid = data.get('entrance_uuid')
+    floor_uuid = data.get('floor_uuid')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        company = db.session.query(Company).get(company_id)
+        company = db.session.query(Company).filter_by(uuid=company_uuid).first()
         if company:
-            floor = db.session.query(Floor).get(floor_id)
+            floor = db.session.query(Floor).filter_by(uuid=floor_uuid)
             if floor:
-                apartment = Apartment(name=name, floor_id=floor_id, company_id=company_id)
+                apartment = Apartment(name=name, floor_uuid=floor_uuid, company_uuid=company_uuid)
                 apartment.save()
                 return generate_add_apartment_success_response(apartment.id)
             else:
-                return generate_floor_not_found_error(floor_id)
+                return generate_floor_not_found_error(floor_uuid)
         else:
-            return generate_company_not_found_error(company_id)
+            return generate_company_not_found_error(company_uuid)
     else:
         return generate_user_not_login_response()
 

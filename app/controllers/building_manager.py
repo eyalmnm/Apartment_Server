@@ -99,7 +99,7 @@ def save_building(a_building, company_id, project_id, author):
     text = a_building.get('text')
     building = Building(uuid=temp_uuid, name=name, company_id=company_id, project_id=project_id,
                         latitude=latitude, longitude=longitude, address=address)
-    if not text:
+    if text:
         comment = BuildingComment(text=text, parent_uuid=temp_uuid, author=author, date_time=date_time)
         comment.save()
     building.save()
