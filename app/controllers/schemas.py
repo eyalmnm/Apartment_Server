@@ -273,6 +273,7 @@ class AddNewApartmentSchema(Schema):
     entrance_uuid = fields.Str(required=True)
     building_uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
     name = fields.Int(required=True)
 
 
@@ -299,7 +300,7 @@ class AddNewRoomSchema(Schema):
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     type = fields.Int(required=True)
-    apartment_id = fields.Int(required=True)
+    apartment_uuid = fields.Str(required=True)
 
 
 class GetRoomByIdSchema(Schema):
@@ -309,10 +310,10 @@ class GetRoomByIdSchema(Schema):
 
 class UpdateRoomByIdSchema(Schema):
     uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
+    room_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     type = fields.Int(required=True)
-    apartment_id = fields.Int(required=True)
+    apartment_uuid = fields.Str(required=True)
 
 
 class DeleteRoomByIdSchema(Schema):

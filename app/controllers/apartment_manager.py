@@ -5,6 +5,7 @@ from app import db
 from app.config.constants import ErrorCodes
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
+from app.utils.uuid_utils import generate_uuid
 
 from app.models import Session, Floor, Company, Apartment
 from app.controllers.schemas import AddNewApartmentSchema, GetApartmentByIdSchema, UpdateApartmentByIdSchema, \
@@ -55,7 +56,9 @@ def add_new_apartment(data):
         if company:
             floor = db.session.query(Floor).filter_by(uuid=floor_uuid)
             if floor:
-                apartment = Apartment(name=name, floor_uuid=floor_uuid, company_uuid=company_uuid)
+                temp_uuid = generate_uuid()
+                apartment = Apartment(uuid=temp_uuid, name=name, floor_uuid=floor_uuid, entrance_uuid=entrance_uuid,
+                                      building_uuid=building_uuid, project_uuid=project_uuid, company_uuid=company_uuid)
                 apartment.save()
                 return generate_add_apartment_success_response(apartment.id)
             else:

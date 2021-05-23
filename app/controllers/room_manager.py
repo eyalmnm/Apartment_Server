@@ -5,6 +5,7 @@ from app import db
 from app.config.constants import ErrorCodes
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
+from app.utils.uuid_utils import generate_uuid
 
 from app.models import Session, Apartment, Room
 from app.controllers.schemas import AddNewRoomSchema, GetRoomByIdSchema, UpdateRoomByIdSchema, DeleteRoomByIdSchema
@@ -39,17 +40,18 @@ def generate_user_not_login_response() -> json:
 def add_new_room(data):
     uuid = data.get('uuid')
     name = data.get('name')
-    apartment_id = data.get('apartment_id')
-    type = data.get('type')
+    apartment_uuid = data.get('apartment_uuid')
+    room_type = data.get('type')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        apartment = db.session.query(Apartment).get(apartment_id)
+        apartment = db.session.query(Apartment).filter_by(uuid=apartment_uuid).first()
         if apartment:
-            room = Room(name=name, apartment_id=apartment_id, type=type)
+            temp_uuid = generate_uuid()
+            room = Room(uuid=temp_uuid, name=name, apartment_uuid=apartment_uuid, room_type=room_type)
             room.save()
             return generate_add_room_success_response(room.id)
         else:
-            return generate_apartment_not_found_error(apartment_id)
+            return generate_apartment_not_found_error(apartment_uuid)
     else:
         return generate_user_not_login_response()
 
@@ -76,19 +78,19 @@ def get_room_by_id(data):
 @validate_schema(update_room_by_id_schema)
 def update_room_by_id(data):
     uuid = data.get('uuid')
-    id = data.get('id')
+    room_uuid = data.get('room_uuid')
     name = data.get('name')
-    apartment_id = data.get('apartment_id')
-    type = data.get('type')
+    apartment_uuid = data.get('apartment_uuid')
+    room_type = data.get('type')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        apartment = db.session.query(Apartment).get(apartment_id)
+        apartment = db.session.query(Apartment).filter_by(uuid=apartment_uuid).first()
         if apartment:
-            room = db.session.query(Room).get(id)
+            room = db.session.query(Room).filter_by(uuid=room_uuid).first()
             if room:
                 room.name = name
-                room.apartment_id = apartment_id
-                room.type = type
+                room.apartment_id = apartment.id
+                room.type = room_type
                 room.update_room()
                 room_dict = room.to_dict()
                 return jsonify(

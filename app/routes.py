@@ -491,6 +491,7 @@ def add_apartment():
     entrance_uuid = fields.Str(required=True)
     building_uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
     name = fields.Int(required=True)
     :return: {'result_code': 0, 'error_message': '', 'apartment_id': id}
     """
@@ -549,7 +550,7 @@ def add_room():
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     type = fields.Int(required=True)
-    apartment_id = fields.Int(required=True)
+    apartment_uuid = fields.Str(required=True)
     :return: {'result_code': 0, 'error_message': '', 'room_id': id}
     """
     if check_auth_header_secret():
@@ -575,10 +576,10 @@ def get_room():
 def update_room():
     """
     uuid = fields.Str(required=True)
+    room_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     type = fields.Int(required=True)
-    apartment_id = fields.Int(required=True)
-    id = fields.Int(required=True)
+    apartment_uuid = fields.Str(required=True)
     :return: {'result_code': 0, 'error_message': '', 'roomData': room_dict}
     """
     if check_auth_header_secret():
