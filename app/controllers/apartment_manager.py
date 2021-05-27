@@ -17,24 +17,24 @@ update_apartment_by_id_schema = UpdateApartmentByIdSchema()
 delete_apartment_by_id_schema = DeleteApartmentByIdSchema()
 
 
-def generate_add_apartment_success_response(id) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment_id': id})
+def generate_add_apartment_success_response(uuid) -> json:
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment_uuid': uuid})
 
 
-def generate_delete_apartment_success_response(id) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment_id': id})
+def generate_delete_apartment_success_response(uuid) -> json:
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment_uuid': uuid})
 
 
 def generate_apartment_not_found_error(id) -> json:
     return jsonify(create_error_response(ErrorCodes.ERROR_CODE_APARTMENT_NOT_FOUND, 'Apartment not found: ' + id))
 
 
-def generate_floor_not_found_error(id) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_FLOOR_NOT_FOUND, 'Floor not found: ' + id))
+def generate_floor_not_found_error(uuid) -> json:
+    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_FLOOR_NOT_FOUND, 'Floor not found: ' + uuid))
 
 
-def generate_company_not_found_error(id) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_COMPANY_NOT_FOUND, 'Company not found: ' + id))
+def generate_company_not_found_error(uuid) -> json:
+    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_COMPANY_NOT_FOUND, 'Company not found: ' + uuid))
 
 
 def generate_user_not_login_response() -> json:
@@ -60,7 +60,7 @@ def add_new_apartment(data):
                 apartment = Apartment(uuid=temp_uuid, name=name, floor_uuid=floor_uuid, entrance_uuid=entrance_uuid,
                                       building_uuid=building_uuid, project_uuid=project_uuid, company_uuid=company_uuid)
                 apartment.save()
-                return generate_add_apartment_success_response(apartment.id)
+                return generate_add_apartment_success_response(apartment.uuid)
             else:
                 return generate_floor_not_found_error(floor_uuid)
         else:

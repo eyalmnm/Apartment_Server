@@ -42,7 +42,11 @@ def add_new_room(data):
     name = data.get('name')
     apartment_uuid = data.get('apartment_uuid')
     room_type = data.get('type')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    session = None
+    try:
+        session = db.session.query(Session).filter_by(uuid=uuid).first()
+    except Exception as ex:
+        print(f'Exception thrown when trying to find a user {ex}')
     if session:
         apartment = db.session.query(Apartment).filter_by(uuid=apartment_uuid).first()
         if apartment:

@@ -326,7 +326,7 @@ class AddNewQuestionnaireSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
     name = fields.Str(required=True)
-    room_id = fields.Int(required=True)
+    room_uuid = fields.Str(required=True)
 
 
 class GetQuestionnaireByIdSchema(Schema):

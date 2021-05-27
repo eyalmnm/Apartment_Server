@@ -507,7 +507,7 @@ class Floor(db.Model):
     building_uuid = db.Column(db.String(64), db.ForeignKey('building.uuid'), nullable=False)
     entrance_uuid = db.Column(db.String(64), db.ForeignKey('entrance.uuid'), nullable=False)
     comments = db.relationship('FloorComment', backref='floor', lazy='dynamic')
-    apartments = relationship("Apartment", backref="floor")
+    apartments = db.relationship("Apartment", backref="floor", lazy='dynamic')
 
     def __init__(self, uuid, company_uuid, project_uuid, building_uuid, entrance_uuid, name, order):
         self.uuid = uuid
@@ -717,12 +717,12 @@ class Questionnaire(db.Model):
     room_uuid = db.Column(db.String(64), db.ForeignKey('room.uuid'), nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
 
-    type_questionnaire = relationship("TypeQuestionnaire", backref="Questionnaire")
+    item = relationship("Item", backref="questionnaire")
 
     def __init__(self, uuid, name, room_uuid, date_time):
         self.uuid = uuid
         self.name = name
-        self.room_id = room_uuid
+        self.room_uuid = room_uuid
         self.date_time = date_time
 
     def save(self):
@@ -738,22 +738,22 @@ class Questionnaire(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        serialized["TypeQuestionnaires"] = [type_questionnaire.to_dict() for type_questionnaire in self.type_questionnaire]
+        serialized["items"] = [item.to_dict() for item in self.items]
         return serialized
 
     def __repr__(self):
         return '<Questionnaire {}>'.format(self.name)
 
 
-# ==================================   TypeQuestionnaire  ====================+
-class TypeQuestionnaire(db.Model):
+# ==================================   Item  ==================================
+class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
     questionnaire_uuid = db.Column(db.String(64), db.ForeignKey('questionnaire.uuid'), nullable=False)
 
-    questions = relationship("Question", backref="questionnaire")
+    questions = relationship("Question", backref="item")
 
     def __init__(self, name, parent_questionnaire, date_time):
         self.name = name
@@ -777,7 +777,7 @@ class TypeQuestionnaire(db.Model):
         return serialized
 
     def __repr__(self):
-        return '<TypeQuestionnaire {}>'.format(self.name)
+        return '<Item {}>'.format(self.name)
 
 
 # ==================================   Question  ==============================
@@ -786,7 +786,7 @@ class Question(db.Model):
     type = db.Column(db.Integer, index=True, nullable=False)
     text = db.Column(db.String(128), index=True, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
-    questionnaire_uuid = db.Column(db.String(128), db.ForeignKey('questionnaire.uuid'), nullable=False)
+    questionnaire_uuid = db.Column(db.String(128), db.ForeignKey('item.uuid'), nullable=False)
     # uuid = db.Column(db.String(128), index=True, nullable=False)
 
     answers = relationship("Answer", backref="question")
