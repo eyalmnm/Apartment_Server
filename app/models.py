@@ -716,6 +716,7 @@ class Questionnaire(db.Model):
     name = db.Column(db.String(128), index=True, nullable=False)
     room_uuid = db.Column(db.String(64), db.ForeignKey('room.uuid'), nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
+    score = db.Column(db.Integer, index=False, nullable=False)
 
     item = relationship("Item", backref="questionnaire")
 
