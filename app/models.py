@@ -790,7 +790,7 @@ class Question(db.Model):
     type = db.Column(db.Integer, index=True, nullable=False)
     text = db.Column(db.String(128), index=True, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
-    questionnaire_uuid = db.Column(db.String(128), db.ForeignKey('item.uuid'), nullable=False)
+    item_uuid = db.Column(db.String(128), db.ForeignKey('item.uuid'), nullable=False)
     # uuid = db.Column(db.String(128), index=True, nullable=False)
 
     answers = relationship("Answer", backref="question")
