@@ -718,7 +718,7 @@ class Questionnaire(db.Model):
     date_time = db.Column(db.String(64), index=False, nullable=False)
     score = db.Column(db.Integer, index=False, nullable=False)
 
-    item = relationship("Item", backref="questionnaire")
+    items = relationship("Item", backref="questionnaire")
 
     def __init__(self, uuid, name, room_uuid, date_time):
         self.uuid = uuid
