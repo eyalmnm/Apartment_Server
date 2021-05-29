@@ -6,7 +6,8 @@ from app.controllers.company_manager import register_new_company, register_new_s
     update_company_by_id, delete_company_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
     delete_building_by_id, get_buildings_list, add_new_buildings_to_project
-from app.controllers.entrance_manager import add_new_entrance, add_all_entrances, get_entrance_by_id, update_entrance_by_id, \
+from app.controllers.entrance_manager import add_new_entrance, add_all_entrances, get_entrance_by_id, \
+    update_entrance_by_id, \
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
 from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
@@ -14,6 +15,7 @@ from app.controllers.apartment_manager import add_new_apartment, get_apartment_b
 from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
 from app.controllers.questionnaire_manager import add_new_questionnaire, get_questionnaire_by_id, \
     update_questionnaire_by_id, delete_questionnaire_by_id
+from app.controllers.item_manager import add_new_item, get_item_by_id, update_item_by_uuid, delete_item_by_id
 from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
     delete_question_by_id
 from app.controllers.answer_manager import add_new_answer, get_answer_by_id, update_answer_by_id, delete_answer_by_id
@@ -248,7 +250,6 @@ def add_contact_to_project():
         return 'Unknown Package'
 
 
-
 # ==================================   Building  ==============================
 @app.route('/add_buildings_to_project', methods=['POST'])
 def add_buildings_to_project():
@@ -379,7 +380,6 @@ def add_entrances():
         return add_all_entrances()
     else:
         return 'Unknown Package'
-
 
 
 @app.route('/get_entrance', methods=['POST', 'GET'])
@@ -657,6 +657,64 @@ def delete_questionnaire():
         return 'Unknown Package'
 
 
+# ==================================   Item  ==================================
+@app.route('/add_item', methods=['POST'])
+def add_item():
+    """
+    uuid = fields.Str(required=True)
+    type = fields.Int(required=True)
+    name = fields.Str(required=True)
+    questionnaire_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'item_uuid': id}
+    """
+    if check_auth_header_secret():
+        return add_new_item()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_item', methods=['POST', 'GET'])
+def get_item():
+    """
+    uuid = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'itemData': item_dict}
+    """
+    if check_auth_header_secret():
+        return get_item_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_item', methods=['PUT'])
+def update_item():
+    """
+    uuid = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    type = fields.Int(required=True)
+    name = fields.Str(required=True)
+    questionnaire_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'itemData': item_dict}
+    """
+    if check_auth_header_secret():
+        return update_item_by_uuid()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/delete_item', methods=['DELETE'])
+def delete_item():
+    """
+    uuid = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'item_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_item_by_id()
+    else:
+        return 'Unknown Package'
+
+
 # ==================================   Question  ==============================
 @app.route('/add_question', methods=['POST'])
 def add_question():
@@ -674,7 +732,7 @@ def add_question():
         return 'Unknown Package'
 
 
-@app.route('/get_question', methods=['POST', 'PUT'])
+@app.route('/get_question', methods=['POST', 'GET'])
 def get_question():
     """
     uuid = fields.Str(required=True)
@@ -687,7 +745,7 @@ def get_question():
         return 'Unknown Package'
 
 
-@app.route('/update_qeustion', methods=['PUT'])
+@app.route('/update_question', methods=['PUT'])
 def update_question():
     """
     uuid = fields.Str(required=True)

@@ -752,23 +752,26 @@ class Item(db.Model):
     uuid = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
+    type = db.Column(db.Integer, index=True, nullable=False)
     questionnaire_uuid = db.Column(db.String(64), db.ForeignKey('questionnaire.uuid'), nullable=False)
 
     questions = relationship("Question", backref="item")
 
-    def __init__(self, name, parent_questionnaire, date_time):
+    def __init__(self, uuid, name, item_type, parent_uuid, date_time):
+        self.uuid = uuid
         self.name = name
-        self.questionnaire_uuid = parent_questionnaire
+        self.type = item_type
+        self.questionnaire_uuid = parent_uuid
         self.date_time = date_time
 
     def save(self):
         db.session.add(self)
         db.session.commit()
 
-    def update_type_questionnaire(self):
+    def update_item(self):
         db.session.commit()
 
-    def delete_type_questionnaire(self):
+    def delete_item(self):
         self.delete()
         db.session.commit()
 

@@ -346,18 +346,44 @@ class DeleteQuestionnaireByIdSchema(Schema):
     id = fields.Str(required=True)
 
 
+# ==================================   Item  ==================================
+class AddNewItemSchema(Schema):
+    uuid = fields.Str(required=True)
+    type = fields.Int(required=True)
+    name = fields.Str(required=True)
+    questionnaire_uuid = fields.Str(required=True)
+
+
+class GetItemByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Str(required=True)
+
+
 # ==================================   Question  ==============================
 class AddNewQuestionSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)
     type = fields.Int(required=True)
     text = fields.Str(required=True)
-    questionnaire_id = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
 
 
 class GetQuestionByIdSchema(Schema):
     uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+
+
+class UpdateItemByUuidSchema(Schema):
+    uuid = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    type = fields.Int(required=True)
+    name = fields.Str(required=True)
+    questionnaire_uuid = fields.Str(required=True)
+
+
+class DeleteItemByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
 
 
 class UpdateQuestionByIdSchema(Schema):
@@ -365,7 +391,7 @@ class UpdateQuestionByIdSchema(Schema):
     id = fields.Str(required=True)
     type = fields.Int(required=True)
     text = fields.Str(required=True)
-    questionnaire_id = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
 
 
 class DeleteQuestionByIdSchema(Schema):

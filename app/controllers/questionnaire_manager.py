@@ -18,21 +18,21 @@ update_questionnaire_by_id_schema = UpdateQuestionnaireByIdSchema()
 delete_questionnaire_by_id_schema = DeleteQuestionnaireByIdSchema()
 
 
-def generate_add_questionnaire_success_response(id) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'questionnaire_id': id})
+def generate_add_questionnaire_success_response(uuid) -> json:
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'questionnaire_uuid': uuid})
 
 
-def generate_delete_questionnaire_success_response(id) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'questionnaire_id': id})
+def generate_delete_questionnaire_success_response(uuid) -> json:
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'questionnaire_uuid': uuid})
 
 
-def generate_questionnaire_not_found_error(id) -> json:
+def generate_questionnaire_not_found_error(uuid) -> json:
     return jsonify(
-        create_error_response(ErrorCodes.ERROR_CODE_QUESTIONNAIRE_NOT_FOUND, 'Questionnaire not found: ' + id))
+        create_error_response(ErrorCodes.ERROR_CODE_QUESTIONNAIRE_NOT_FOUND, 'Questionnaire not found: ' + uuid))
 
 
-def generate_room_not_found_error(id) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_ROOM_NOT_FOUND, 'Room not found: ' + id))
+def generate_room_not_found_error(uuid) -> json:
+    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_ROOM_NOT_FOUND, 'Room not found: ' + uuid))
 
 
 def generate_user_not_login_response() -> json:
@@ -52,7 +52,7 @@ def add_new_questionnaire(data):
         if room:
             questionnaire = Questionnaire(uuid=temp_uuid, name=name, room_uuid=room_uuid, date_time=date_time)
             questionnaire.save()
-            return generate_add_questionnaire_success_response(questionnaire.id)
+            return generate_add_questionnaire_success_response(questionnaire.uuid)
         else:
             return generate_room_not_found_error(room_uuid)
     else:
