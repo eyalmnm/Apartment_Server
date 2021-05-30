@@ -109,6 +109,20 @@ def update_questionnaire_by_id(data):
         return generate_user_not_login_response()
 
 
+def update_questionnaire_score(questionnaire_uuid: str, score: int) -> json:
+    questionnaire = db.session.query(Questionnaire).filter_by(uuid=questionnaire_uuid).first()
+    if questionnaire:
+        questionnaire.score = score
+        questionnaire.update_questionnaire()
+        questionnaire_dict = questionnaire.to_dict()
+        return jsonify(
+            {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
+             'error_message': '',
+             'questionnaireData': questionnaire_dict})
+    else:
+        return generate_questionnaire_not_found_error(questionnaire_uuid)
+
+
 @validate_schema(delete_questionnaire_by_id_schema)
 def delete_questionnaire_by_id(data):
     uuid = data.get('uuid')
@@ -123,3 +137,14 @@ def delete_questionnaire_by_id(data):
             return generate_questionnaire_not_found_error(questionnaire_uuid)
     else:
         return generate_user_not_login_response()
+
+
+def score_calculator(questionnaire: Questionnaire) -> float:
+    questions_counter = 0
+    answers_counter = 0
+    for item in questionnaire.items:
+        for question in item.questions:
+            questions_counter += 1
+            answers_counter += question.answers
+    res = 1 - (answers_counter / questions_counter)
+    return res * 100
