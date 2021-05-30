@@ -324,9 +324,9 @@ class DeleteRoomByIdSchema(Schema):
 # ==================================   Questionnaire  =========================
 class AddNewQuestionnaireSchema(Schema):
     uuid = fields.Str(required=True)
-    id = fields.Str(required=True)
     name = fields.Str(required=True)
     room_uuid = fields.Str(required=True)
+    score = fields.Int(required=True)
 
 
 class GetQuestionnaireByIdSchema(Schema):

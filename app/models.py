@@ -604,7 +604,7 @@ class Apartment(db.Model):
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
-        serialized["rooms"] = [room.to_dict() for room in self.rooms]
+        serialized["rooms"] = [room.to_flat_dict() for room in self.rooms]
         serialized["comments"] = [comment.to_dict() for comment in self.comments]
         return serialized
 
@@ -669,7 +669,13 @@ class Room(db.Model):
         self.delete()
         db.session.commit()
 
-    def to_dict(self):
+    def to_flat_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        # serialized["comments"] = [comment.to_dict() for comment in self.comments]
+        serialized["questionnaires"] = [questionnaire.to_flat_dict() for questionnaire in self.questionnaires]
+        return serialized
+
+    def to_deep_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
         # serialized["comments"] = [comment.to_dict() for comment in self.comments]
         serialized["questionnaires"] = [questionnaire.to_dict() for questionnaire in self.questionnaires]
@@ -720,11 +726,12 @@ class Questionnaire(db.Model):
 
     items = relationship("Item", backref="questionnaire")
 
-    def __init__(self, uuid, name, room_uuid, date_time):
+    def __init__(self, uuid, name, room_uuid, date_time, score):
         self.uuid = uuid
         self.name = name
         self.room_uuid = room_uuid
         self.date_time = date_time
+        self.score = score
 
     def save(self):
         db.session.add(self)
@@ -736,6 +743,10 @@ class Questionnaire(db.Model):
     def delete_questionnaire(self):
         self.delete()
         db.session.commit()
+
+    def to_flat_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
 
     def to_dict(self):
         serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))

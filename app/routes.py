@@ -608,6 +608,7 @@ def add_questionnaire():
     uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     room_uuid = fields.Str(required=True)
+    score = fields.Int(required=True)
     :return: {'result_code': 0, 'error_message': '', 'questionnaire_id': id}
     """
     if check_auth_header_secret():

@@ -44,13 +44,14 @@ def add_new_questionnaire(data):
     uuid = data.get('uuid')
     name = data.get('name')
     room_uuid = data.get('room_uuid')
+    score = data.get('score')
     date_time = datetime.utcnow()
     temp_uuid = generate_uuid()
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
         room = db.session.query(Room).filter_by(uuid=room_uuid).first()
         if room:
-            questionnaire = Questionnaire(uuid=temp_uuid, name=name, room_uuid=room_uuid, date_time=date_time)
+            questionnaire = Questionnaire(uuid=temp_uuid, name=name, room_uuid=room_uuid, date_time=date_time, score=score)
             questionnaire.save()
             return generate_add_questionnaire_success_response(questionnaire.uuid)
         else:
@@ -84,6 +85,7 @@ def update_questionnaire_by_id(data):
     questionnaire_uuid = data.get('questionnaire_uuid')
     name = data.get('name')
     room_id = data.get('room_id')
+    score = data.get('score')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
         room = db.session.query(Room).get(room_id)
@@ -92,6 +94,7 @@ def update_questionnaire_by_id(data):
             if questionnaire:
                 questionnaire.name = name
                 questionnaire.room_id = room_id
+                questionnaire.score = score
                 questionnaire.update_questionnaire()
                 questionnaire_dict = questionnaire.to_dict()
                 return jsonify(
