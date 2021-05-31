@@ -806,11 +806,11 @@ class Question(db.Model):
 
     answers = relationship("Answer", backref="question")
 
-    def __init__(self, id, question_type, text, questionnaire_uuid, date_time):  # , uuid):
-        self.id = id
+    def __init__(self, uuid, question_type, text, item_uuid, date_time):  # , uuid):
+        self.id = uuid
         self.type = question_type
         self.text = text
-        self.questionnaire_uuid = questionnaire_uuid
+        self.item_uuid = item_uuid
         self.date_time = date_time
         # self.uuid = uuid
 

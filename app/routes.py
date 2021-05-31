@@ -14,7 +14,7 @@ from app.controllers.apartment_manager import add_new_apartment, get_apartment_b
     delete_apartment_by_id
 from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
 from app.controllers.questionnaire_manager import add_new_questionnaire, get_questionnaire_by_id, \
-    update_questionnaire_by_id, delete_questionnaire_by_id
+    update_questionnaire_by_id, delete_questionnaire_by_id, upload_filled_questionnaire
 from app.controllers.item_manager import add_new_item, get_item_by_id, update_item_by_uuid, delete_item_by_id
 from app.controllers.question_manager import add_new_question, get_question_by_id, update_question_by_id, \
     delete_question_by_id
@@ -615,6 +615,22 @@ def add_questionnaire():
         return add_new_questionnaire()
     else:
         return 'Unknown Package'
+
+
+@app.route('/upload_questionnaire', methods=['POST', 'PUT'])
+def upload_questionnaire():
+    """
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    room_uuid = fields.Str(required=True)
+    items = fields.List(fields.Nested(AddQuestionnaireItemSchema), required=False)
+    :return: {'result_code': 0, 'error_message': '', 'questionnaireData': questionnaire_dict}
+    """
+    if check_auth_header_secret():
+        return upload_filled_questionnaire()
+    else:
+        return 'Unknown Package'
+
 
 
 @app.route('/get_questionnaire', methods=['GET', 'POST'])

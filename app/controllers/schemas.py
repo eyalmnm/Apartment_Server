@@ -329,6 +329,31 @@ class AddNewQuestionnaireSchema(Schema):
     score = fields.Int(required=True)
 
 
+class AddQuestionnaireAnswerSchema(Schema):
+    id = fields.Str(required=True)
+    text = fields.Str(required=True)
+
+
+class AddQuestionnaireQuestionSchema(Schema):
+    id = fields.Str(required=True)
+    type = fields.Int(required=True)
+    text = fields.Str(required=True)
+    answers = fields.List(fields.Nested(AddQuestionnaireAnswerSchema), required=False)
+
+
+class AddQuestionnaireItemSchema(Schema):
+    type = fields.Int(required=True)
+    name = fields.Str(required=True)
+    questions = fields.List(fields.Nested(AddQuestionnaireQuestionSchema), required=False)
+
+
+class UploadFilledQuestionnaireSchema(Schema):
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    room_uuid = fields.Str(required=True)
+    items = fields.List(fields.Nested(AddQuestionnaireItemSchema), required=False)
+
+
 class GetQuestionnaireByIdSchema(Schema):
     uuid = fields.Str(required=True)
     id = fields.Str(required=True)

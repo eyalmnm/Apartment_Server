@@ -8,11 +8,12 @@ from app.utils.schema_utils import validate_schema
 from datetime import datetime
 from app.utils.uuid_utils import generate_uuid
 
-from app.models import Session, Room, Questionnaire
+from app.models import Session, Room, Questionnaire, Item, Question, Answer
 from app.controllers.schemas import AddNewQuestionnaireSchema, GetQuestionnaireByIdSchema, \
-    UpdateQuestionnaireByIdSchema, DeleteQuestionnaireByIdSchema
+    UpdateQuestionnaireByIdSchema, DeleteQuestionnaireByIdSchema, UploadFilledQuestionnaireSchema
 
 add_new_questionnaire_schema = AddNewQuestionnaireSchema()
+upload_filled_questionnaire_schema = UploadFilledQuestionnaireSchema()
 get_questionnaire_by_id_schema = GetQuestionnaireByIdSchema()
 update_questionnaire_by_id_schema = UpdateQuestionnaireByIdSchema()
 delete_questionnaire_by_id_schema = DeleteQuestionnaireByIdSchema()
@@ -58,6 +59,51 @@ def add_new_questionnaire(data):
             return generate_room_not_found_error(room_uuid)
     else:
         return generate_user_not_login_response()
+
+
+@validate_schema(upload_filled_questionnaire_schema)
+def upload_filled_questionnaire(data):
+    ques_counter = 0
+    answ_counter = 0
+    uuid = data.get('uuid')
+    name = data.get('name')
+    room_uuid = data.get('room_uuid')
+    questionnaire_items = data.get('items')
+    date_time = datetime.utcnow()
+    questionnaire_uuid = generate_uuid()
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        room = db.session.query(Room).filter_by(uuid=room_uuid).first()
+        if room:
+            questionnaire = Questionnaire(uuid=questionnaire_uuid, name=name, room_uuid=room_uuid, date_time=date_time, score=0)
+            if len(questionnaire_items) > 0:
+                for an_item in questionnaire_items:
+                    item_uuid = generate_uuid()
+                    item_questions = an_item.get('questions')
+                    a_item = Item(item_uuid, an_item.get('name'), an_item.get('type'), questionnaire_uuid, date_time)
+                    if len(item_questions) > 0:
+                        for a_question in item_questions:
+                            ques_counter += 1
+                            question_uuid = generate_uuid()
+                            question_answers = a_question.get('answers')
+                            question = Question(question_uuid, a_question.get('type'), a_question.get('text'), item_uuid, date_time)
+                            if len(question_answers) > 0:
+                                for an_answer in question_answers:
+                                    answ_counter += 1
+                                    answer_uuid = generate_uuid()
+                                    answer = Answer(an_answer.get('text'), question_uuid, answer_uuid, date_time)
+                                    answer.save()
+                            question.save()
+                    a_item.save()
+            score = calcScore(ques_counter, answ_counter)
+            questionnaire.save()
+            return generate_add_questionnaire_success_response(questionnaire.uuid)
+        else:
+            return generate_room_not_found_error(room_uuid)
+    else:
+        return generate_user_not_login_response()
+
+
 
 
 @validate_schema(get_questionnaire_by_id_schema)
@@ -139,12 +185,18 @@ def delete_questionnaire_by_id(data):
         return generate_user_not_login_response()
 
 
-def score_calculator(questionnaire: Questionnaire) -> float:
-    questions_counter = 0
-    answers_counter = 0
+def score_calculator(questionnaire: Questionnaire) -> int:
+    questions_counter: float = 0.0
+    answers_counter: float = 0.0
     for item in questionnaire.items:
         for question in item.questions:
             questions_counter += 1
-            answers_counter += question.answers
-    res = 1 - (answers_counter / questions_counter)
-    return res * 100
+            answers_counter += len(question.answers)
+    res = 1.0 - (answers_counter / questions_counter)
+    return int(res * 100)
+
+
+def calcScore(ques_counter, answ_counter):
+    res = 1.0 - (answ_counter / ques_counter)
+    return int(res * 100)
+
