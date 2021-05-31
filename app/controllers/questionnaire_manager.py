@@ -96,6 +96,7 @@ def upload_filled_questionnaire(data):
                             question.save()
                     a_item.save()
             score = calcScore(ques_counter, answ_counter)
+            questionnaire.score = score
             questionnaire.save()
             return generate_add_questionnaire_success_response(questionnaire.uuid)
         else:
