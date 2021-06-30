@@ -6,7 +6,7 @@ from flask import jsonify
 from app import db
 from app.config.constants import ErrorCodes
 from app.controllers.schemas import AddNewBuildingSchema, GetBuildingByIdSchema, UpdateBuildingByIdSchema, \
-    DeleteBuildingByIdSchema, GetBuildingsListSchema, AddNewBuildingsToProjectSchema
+    DeleteBuildingByIdSchema, GetBuildingsListSchema, AddNewBuildingsToProjectSchema, GetBuildingsByProjectIdSchema
 from app.models import Building, Session, Company, Project, BuildingComment, User
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
@@ -18,6 +18,7 @@ get_building_by_id_schema = GetBuildingByIdSchema()
 update_building_by_id_schema = UpdateBuildingByIdSchema()
 delete_building_by_id_schema = DeleteBuildingByIdSchema()
 get_buildings_list_schema = GetBuildingsListSchema()
+get_buildings_by_project_id_schema = GetBuildingsByProjectIdSchema()
 
 
 def generate_add_building_success_response(id) -> json:
@@ -34,7 +35,8 @@ def generate_building_of_project_save_success_response(project_dict: dict) -> js
 
 
 def generate_building_not_found_error(building_id) -> json:
-    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_BUILDING_NOT_FOUND, 'Building not found: ' + building_id))
+    return jsonify(
+        create_error_response(ErrorCodes.ERROR_CODE_BUILDING_NOT_FOUND, 'Building not found: ' + building_id))
 
 
 def generate_buildings_not_found_error() -> json:
@@ -68,8 +70,8 @@ def generate_user_not_login_response() -> json:
 def add_new_building(data):
     uuid = data.get('uuid')
     name = data.get('name')
-    company_uuid = data.get('company_id')
-    project_id = data.get('project_id')
+    company_uuid = data.get('company_uuid')
+    project_id = data.get('project_uuid')
     address = data.get('address')
     latitude = data.get('latitude')
     longitude = data.get('longitude')
@@ -183,13 +185,44 @@ def get_buildings_list(data):
         return generate_user_not_login_response()
 
 
+@validate_schema(get_buildings_by_project_id_schema)
+def get_buildings_by_project_id(data):
+    uuid = data.get('uuid')
+    company_uuid = data.get('company_uuid')
+    project_uuid = data.get('project_uuid')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+        if company:
+            project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
+            if project:
+                buildings = db.session.query(Building).filter_by(company_id=company_uuid)\
+                    .filter_by(project_id=project_uuid).all()
+                if buildings:
+                    buildings_list = list()
+                    for building in buildings:
+                        buildings_list.append(building.to_flat_dict())
+                    return jsonify(
+                        {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value,
+                         'error_message': '',
+                         'buildingList': buildings_list})
+                else:
+                    return generate_buildings_not_found_error()
+            else:
+                return generate_project_not_found_error(project_uuid)
+        else:
+            return generate_company_not_found_error(company_uuid)
+    else:
+        return generate_user_not_login_response()
+
+
 @validate_schema(get_building_by_id_schema)
 def get_building_by_id(data):
     uuid = data.get('uuid')
-    id = data.get('id')
-    session = db.session.query(Session).filer_by(uuid=uuid).first()
+    building_uuid = data.get('building_uuid')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        building = db.session.query(Building).get(id)
+        building = db.session.query(Building).filter_by(uuid=building_uuid).first()
         if building:
             building_dict = building.to_dict()
             return jsonify(

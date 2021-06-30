@@ -88,10 +88,10 @@ def upload_filled_questionnaire(data):
                             question_answers = a_question.get('answers')
                             question = Question(question_uuid, a_question.get('type'), a_question.get('text'), item_uuid, date_time)
                             if len(question_answers) > 0:
+                                answ_counter += 1
                                 for an_answer in question_answers:
-                                    answ_counter += 1
                                     answer_uuid = generate_uuid()
-                                    answer = Answer(an_answer.get('text'), question_uuid, answer_uuid, date_time)
+                                    answer = Answer(an_answer.get('text'), an_answer.get('type'), question_uuid, answer_uuid, date_time)
                                     answer.save()
                             question.save()
                     a_item.save()
@@ -105,15 +105,13 @@ def upload_filled_questionnaire(data):
         return generate_user_not_login_response()
 
 
-
-
 @validate_schema(get_questionnaire_by_id_schema)
 def get_questionnaire_by_id(data):
     uuid = data.get('uuid')
-    questionnaire_uuid = data.get(id)
+    questionnaire_uuid = data.get('id')
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        questionnaire = db.session.query(Questionnaire).filter_by(questionnaire_uuid).first()
+        questionnaire = db.session.query(Questionnaire).filter_by(uuid=questionnaire_uuid).first()
         if questionnaire:
             questionnaire_dict = questionnaire.to_dict()
             return jsonify(

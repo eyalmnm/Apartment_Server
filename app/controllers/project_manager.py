@@ -124,7 +124,7 @@ def add_new_project(data):
                 try:
                     for contact in contacts:
                         save_new_contact(contact, manager_user.fullname, company_uuid, date_time, temp_uuid)
-                        if not comment:
+                        if comment:
                             project_comment = ProjectComment(text=comment, parent_uuid=temp_uuid,
                                                              author=manager_user.fullname,
                                                              date_time=date_time)

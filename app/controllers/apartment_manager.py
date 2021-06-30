@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from flask import jsonify
 
 from app import db
@@ -7,7 +8,7 @@ from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
 from app.utils.uuid_utils import generate_uuid
 
-from app.models import Session, Floor, Company, Apartment
+from app.models import Session, User, Floor, Company, Apartment, ApartmentComment
 from app.controllers.schemas import AddNewApartmentSchema, GetApartmentByIdSchema, UpdateApartmentByIdSchema, \
     DeleteApartmentByIdSchema
 
@@ -41,6 +42,10 @@ def generate_user_not_login_response() -> json:
     return jsonify(create_error_response(ErrorCodes.ERROR_CODE_USER_NOT_LOGGED_IN, 'User not logged in'))
 
 
+def generate_user_not_found_response() -> json:
+    return jsonify(create_error_response(ErrorCodes.ERROR_CODE_USER_NOT_FOUND, 'User not found'))
+
+
 @validate_schema(add_new_apartment_schema)
 def add_new_apartment(data):
     uuid = data.get('uuid')
@@ -50,21 +55,34 @@ def add_new_apartment(data):
     building_uuid = data.get('building_uuid')
     entrance_uuid = data.get('entrance_uuid')
     floor_uuid = data.get('floor_uuid')
+    comment = data.get("text")
     session = db.session.query(Session).filter_by(uuid=uuid).first()
     if session:
-        company = db.session.query(Company).filter_by(uuid=company_uuid).first()
-        if company:
-            floor = db.session.query(Floor).filter_by(uuid=floor_uuid)
-            if floor:
-                temp_uuid = generate_uuid()
-                apartment = Apartment(uuid=temp_uuid, name=name, floor_uuid=floor_uuid, entrance_uuid=entrance_uuid,
-                                      building_uuid=building_uuid, project_uuid=project_uuid, company_uuid=company_uuid)
-                apartment.save()
-                return generate_add_apartment_success_response(apartment.uuid)
+        user_name = session.username
+        user = db.session.query(User).filter_by(username=user_name).first()
+        if user:
+            company = db.session.query(Company).filter_by(uuid=company_uuid).first()
+            if company:
+                floor = db.session.query(Floor).filter_by(uuid=floor_uuid)
+                if floor:
+                    temp_uuid = generate_uuid()
+                    date_time = datetime.utcnow()
+                    apartment = Apartment(uuid=temp_uuid, name=name, floor_uuid=floor_uuid, entrance_uuid=entrance_uuid,
+                                          building_uuid=building_uuid, project_uuid=project_uuid,
+                                          company_uuid=company_uuid)
+                    if comment:
+                        apartment_comment = ApartmentComment(text=comment, parent_uuid=temp_uuid,
+                                                             author=user.fullname,
+                                                             date_time=date_time)
+                        apartment_comment.save()
+                    apartment.save()
+                    return generate_add_apartment_success_response(apartment.uuid)
+                else:
+                    return generate_floor_not_found_error(floor_uuid)
             else:
-                return generate_floor_not_found_error(floor_uuid)
+                return generate_company_not_found_error(company_uuid)
         else:
-            return generate_company_not_found_error(company_uuid)
+            return generate_user_not_found_response()
     else:
         return generate_user_not_login_response()
 

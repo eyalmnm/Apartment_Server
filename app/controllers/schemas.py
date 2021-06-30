@@ -155,11 +155,17 @@ class AddNewBuildingsToProjectSchema(Schema):
     buildings = fields.List(fields.Nested(AddBuildingsToProjectBuildingSchema), required=False)
 
 
+class GetBuildingsByProjectIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+
+
 class AddNewBuildingSchema(Schema):
     uuid = fields.Str(required=True)
     address = fields.Str(required=True)
-    company_id = fields.Str(required=True)
-    project_id = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     latitude = fields.Decimal(required=True)
     longitude = fields.Decimal(required=True)
@@ -168,7 +174,7 @@ class AddNewBuildingSchema(Schema):
 
 class GetBuildingByIdSchema(Schema):
     uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
+    building_uuid = fields.Str(required=True)
 
 
 class GetBuildingsListSchema(Schema):
@@ -244,6 +250,7 @@ class AddNewFloorSchema(Schema):
     project_uuid = fields.Str(required=True)
     building_uuid = fields.Str(required=True)
     entrance_uuid = fields.Str(required=True)
+    text = fields.Str(required=False)
     name = fields.Str(required=True)
     order = fields.Int(required=True)
 
@@ -274,6 +281,7 @@ class AddNewApartmentSchema(Schema):
     building_uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
+    text = fields.Str(required=False)
     name = fields.Int(required=True)
 
 
@@ -330,12 +338,11 @@ class AddNewQuestionnaireSchema(Schema):
 
 
 class AddQuestionnaireAnswerSchema(Schema):
-    id = fields.Str(required=True)
+    type = fields.Int(required=True)
     text = fields.Str(required=True)
 
 
 class AddQuestionnaireQuestionSchema(Schema):
-    id = fields.Str(required=True)
     type = fields.Int(required=True)
     text = fields.Str(required=True)
     answers = fields.List(fields.Nested(AddQuestionnaireAnswerSchema), required=False)

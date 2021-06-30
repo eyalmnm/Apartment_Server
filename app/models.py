@@ -620,7 +620,7 @@ class ApartmentComment(db.Model):
     author = db.Column(db.String(64), index=False, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
 
-    def __init__(self, text: str, parent_uuid: str, author: int, date_time: datetime):
+    def __init__(self, text: str, parent_uuid: str, author: str, date_time: datetime):
         self.text = text
         self.parent_uuid = parent_uuid
         self.author = author
@@ -801,8 +801,7 @@ class Question(db.Model):
     type = db.Column(db.Integer, index=True, nullable=False)
     text = db.Column(db.String(128), index=True, nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
-    item_uuid = db.Column(db.String(128), db.ForeignKey('item.uuid'), nullable=False)
-    # uuid = db.Column(db.String(128), index=True, nullable=False)
+    parent_uuid = db.Column(db.String(128), db.ForeignKey('item.uuid'), nullable=False)
 
     answers = relationship("Answer", backref="question")
 
@@ -810,9 +809,8 @@ class Question(db.Model):
         self.id = uuid
         self.type = question_type
         self.text = text
-        self.item_uuid = item_uuid
+        self.parent_uuid = item_uuid
         self.date_time = date_time
-        # self.uuid = uuid
 
     def save(self):
         db.session.add(self)
@@ -841,9 +839,11 @@ class Answer(db.Model):
     text = db.Column(db.String(2048), index=True, nullable=False)  # in case of outbound - hint
     question_uuid = db.Column(db.String(128), db.ForeignKey('question.id'), nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)
+    type = db.Column(db.Integer, index=True, nullable=True)
 
-    def __init__(self, text, question_uuid, uuid, date_time):
+    def __init__(self, text, answer_type, question_uuid, uuid, date_time):
         self.text = text
+        self.type = answer_type
         self.question_uuid = question_uuid
         self.uuid = uuid
         self.date_time = date_time

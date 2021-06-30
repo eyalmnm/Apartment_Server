@@ -5,7 +5,7 @@ from app.controllers.user_manager import register_new_user, user_login, the_admi
 from app.controllers.company_manager import register_new_company, register_new_sub_company, get_company_by_id, \
     update_company_by_id, delete_company_by_id
 from app.controllers.building_manager import add_new_building, get_building_by_id, update_building_by_id, \
-    delete_building_by_id, get_buildings_list, add_new_buildings_to_project
+    delete_building_by_id, get_buildings_list, add_new_buildings_to_project, get_buildings_by_project_id
 from app.controllers.entrance_manager import add_new_entrance, add_all_entrances, get_entrance_by_id, \
     update_entrance_by_id, \
     delete_entrance_by_id
@@ -304,11 +304,25 @@ def get_buildings():
         return 'Unknown Package'
 
 
+@app.route('/get_buildings_by_project', methods=['GET', 'POST'])
+def get_buildings_by_project():
+    """
+    uuid = fields.Str(required=True)
+    company_uuid = fields.Str(required=True)
+    project_uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'buildingsList': [{Building}]]}
+    """
+    if check_auth_header_secret():
+        return get_buildings_by_project_id()
+    else:
+        return 'Unknown Package'
+
+
 @app.route('/get_building', methods=['POST', 'GET'])
 def get_building():
     """
     uuid = fields.Str(required=True)
-    id = fields.Int(required=True)
+    building_uuid = fields.Str(required=True)
     :return: {'result_code': 0, 'error_message': '', 'buildingData': building_dict}
     """
     if check_auth_header_secret():
@@ -353,9 +367,10 @@ def add_entrance():
     uuid = fields.Str(required=True)
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
-    building_id = fields.Int(required=True)
+    building_uuid = fields.Str(required=True)
     name = fields.Str(required=True)
     text = fields.Str(required=False)
+    order = fields.Int(required=True)
     :return: {'result_code': 0, 'error_message': '', 'entrance_uuid': uuid}
     """
     if check_auth_header_secret():
@@ -432,7 +447,9 @@ def add_floor():
     project_uuid = fields.Str(required=True)
     building_uuid = fields.Str(required=True)
     entrance_uuid = fields.Str(required=True)
+    text = fields.Str(required=False)
     name = fields.Str(required=True)
+    order = fields.Int(required=True)
     :return: {'result_code 0, 'error_message': '', 'floor_id': id}
     """
     if check_auth_header_secret():
@@ -493,6 +510,7 @@ def add_apartment():
     company_uuid = fields.Str(required=True)
     project_uuid = fields.Str(required=True)
     name = fields.Int(required=True)
+    text = fields.Str(required=False)
     :return: {'result_code': 0, 'error_message': '', 'apartment_id': id}
     """
     if check_auth_header_secret():
@@ -630,7 +648,6 @@ def upload_questionnaire():
         return upload_filled_questionnaire()
     else:
         return 'Unknown Package'
-
 
 
 @app.route('/get_questionnaire', methods=['GET', 'POST'])

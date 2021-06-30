@@ -17,7 +17,7 @@ delete_room_by_id_schema = DeleteRoomByIdSchema()
 
 
 def generate_add_room_success_response(id) -> json:
-    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'room_id': id})
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'room_uuid': id})
 
 
 def generate_delete_room_success_response(id) -> json:
@@ -53,7 +53,7 @@ def add_new_room(data):
             temp_uuid = generate_uuid()
             room = Room(uuid=temp_uuid, name=name, apartment_uuid=apartment_uuid, room_type=room_type)
             room.save()
-            return generate_add_room_success_response(room.id)
+            return generate_add_room_success_response(room.uuid)
         else:
             return generate_apartment_not_found_error(apartment_uuid)
     else:
