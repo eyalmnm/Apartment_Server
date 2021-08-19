@@ -8,14 +8,15 @@ from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
 from app.utils.uuid_utils import generate_uuid
 
-from app.models import Session, User, Floor, Company, Apartment, ApartmentComment
+from app.models import Session, User, Floor, Company, Apartment, ApartmentComment, Room, Questionnaire
 from app.controllers.schemas import AddNewApartmentSchema, GetApartmentByIdSchema, UpdateApartmentByIdSchema, \
-    DeleteApartmentByIdSchema
+    DeleteApartmentByIdSchema, GetApartmentScoreByIdSchema
 
 add_new_apartment_schema = AddNewApartmentSchema()
 get_apartment_by_id_schema = GetApartmentByIdSchema()
 update_apartment_by_id_schema = UpdateApartmentByIdSchema()
 delete_apartment_by_id_schema = DeleteApartmentByIdSchema()
+get_apartment_score_by_id_schema = GetApartmentScoreByIdSchema()
 
 
 def generate_add_apartment_success_response(uuid) -> json:
@@ -24,6 +25,10 @@ def generate_add_apartment_success_response(uuid) -> json:
 
 def generate_delete_apartment_success_response(uuid) -> json:
     return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment_uuid': uuid})
+
+
+def generate_apartment_score(id, score) -> json:
+    return jsonify({'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment': id, 'score': score})
 
 
 def generate_apartment_not_found_error(id) -> json:
@@ -147,6 +152,33 @@ def delete_apartment_by_id(data):
         if apartment:
             apartment.delete_apartment()
             return generate_delete_apartment_success_response(id)
+        else:
+            return generate_apartment_not_found_error(id)
+    else:
+        return generate_user_not_login_response()
+
+
+@validate_schema(get_apartment_score_by_id_schema)
+def get_apartment_score_by_id(data):
+    uuid = data.get('uuid')
+    id = data.get('id')
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    if session:
+        apartment = db.session.query(Apartment).get(id)
+        if apartment:
+            rooms = apartment.rooms
+            if len(rooms) > 0:
+                counter = 0
+                total = 0.0
+                for room in rooms:
+                    room_uuid = room.uuid
+                    questionnaire = db.session.query(Questionnaire).filter_by(room_uuid=id).order_by('date_time desc').first()
+                    total = total + questionnaire.score
+                    counter = counter + 1
+                score = total / counter
+                generate_apartment_score(id, score)
+            else:
+                return generate_apartment_score(id, -1)
         else:
             return generate_apartment_not_found_error(id)
     else:

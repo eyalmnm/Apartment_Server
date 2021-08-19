@@ -303,6 +303,11 @@ class DeleteApartmentByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+class GetApartmentScoreByIdSchema(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
 # ==================================   Room  ==================================
 class AddNewRoomSchema(Schema):
     uuid = fields.Str(required=True)

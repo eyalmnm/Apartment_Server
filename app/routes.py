@@ -11,7 +11,7 @@ from app.controllers.entrance_manager import add_new_entrance, add_all_entrances
     delete_entrance_by_id
 from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update_floor_by_id, delete_floor_by_id
 from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
-    delete_apartment_by_id
+    delete_apartment_by_id, get_apartment_score_by_id
 from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
 from app.controllers.questionnaire_manager import add_new_questionnaire, get_questionnaire_by_id, \
     update_questionnaire_by_id, delete_questionnaire_by_id, upload_filled_questionnaire
@@ -528,6 +528,19 @@ def get_apartment():
     """
     if check_auth_header_secret():
         return get_apartment_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_apartment_score')
+def get_apartment_score():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': ErrorCodes.ERROR_CODE_SUCCESS.value, 'error_message': '', 'apartment': id, 'score': score}
+    """
+    if check_auth_header_secret():
+        return get_apartment_score_by_id()
     else:
         return 'Unknown Package'
 

@@ -24,10 +24,12 @@ class Session(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(128), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(128), index=True, unique=True, nullable=False)
+    time_stamp = db.Column(db.DateTime, index=False, nullable=False)
 
-    def __init__(self, username: str, uuid: str):
+    def __init__(self, username: str, uuid: str, time_stamp: datetime):
         self.username = username
         self.uuid = uuid
+        self.time_stamp = time_stamp
 
     def save(self):
         db.session.add(self)

@@ -1,5 +1,5 @@
 import json
-
+from datetime import datetime, timedelta
 from flask import jsonify
 
 from app import db
@@ -76,11 +76,23 @@ def user_login(data) -> json:
             session_old.uuid = temp_uuid
             session_old.update_session()
         else:
-            session = Session(user.username, temp_uuid)
+            session = Session(user.username, temp_uuid, datetime.utcnow())
             session.save()
         return generate_login_success_response(temp_uuid)
     else:
         return generate_login_failed_response()
+
+
+def is_user_login(uuid: str) -> str:
+    now = datetime.utcnow()
+    session = db.session.query(Session).filter_by(uuid=uuid).first()
+    updated_time = session.time_stamp + timedelta(minutes=30)
+    if updated_time < now:
+        session.delete()
+    else:
+        session.time_stamp = now
+        session.update_session()
+        return session.username
 
 
 @validate_schema(the_admin_login_schema)
@@ -101,7 +113,7 @@ def the_admin_login(data):
             session_old.uuid = temp_uuid
             session_old.update_session()
         else:
-            session = Session(username, temp_uuid)
+            session = Session(username, temp_uuid, datetime.utcnow())
             session.save()
         return generate_login_success_response(temp_uuid)
     else:
