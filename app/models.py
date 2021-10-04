@@ -25,11 +25,13 @@ class Session(db.Model):
     username = db.Column(db.String(128), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(128), index=True, unique=True, nullable=False)
     time_stamp = db.Column(db.DateTime, index=False, nullable=False)
+    remote_address = db.Column(db.String(32), index=True, unique=False, nullable=False)   # change to: unique=True
 
-    def __init__(self, username: str, uuid: str, time_stamp: datetime):
+    def __init__(self, username: str, uuid: str, time_stamp: datetime, remote_address: str):
         self.username = username
         self.uuid = uuid
         self.time_stamp = time_stamp
+        self.remote_address = remote_address
 
     def save(self):
         db.session.add(self)

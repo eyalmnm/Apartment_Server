@@ -6,5 +6,6 @@ class UserStatus(Enum):
     SUPER_ADMIN_USER = 1
     ADMIN_USER = 2
     SIMPLE_USER = 5
+    TEMP_USER = 6
     SPECTATOR = 10
     DELETED = -1
