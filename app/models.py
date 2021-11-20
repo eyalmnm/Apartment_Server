@@ -25,7 +25,7 @@ class Session(db.Model):
     username = db.Column(db.String(128), index=True, unique=True, nullable=False)
     uuid = db.Column(db.String(128), index=True, unique=True, nullable=False)
     time_stamp = db.Column(db.DateTime, index=False, nullable=False)
-    remote_address = db.Column(db.String(32), index=True, unique=False, nullable=False)   # change to: unique=True
+    remote_address = db.Column(db.String(32), index=True, unique=False, nullable=False)  # change to: unique=True
 
     def __init__(self, username: str, uuid: str, time_stamp: datetime, remote_address: str):
         self.username = username
@@ -719,10 +719,40 @@ class RoomComment(db.Model):
         return serialized
 
 
+# ==================================   Favorite  ==============================
+class Favorite(db.Model):
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    owner_id = db.Column(db.Integer(), index=False, nullable=False)  # User Id
+    name = db.Column(db.String(128), index=True, nullable=False)  # Fully address of the item
+    item_uuid = db.Column(db.String(64), index=True, nullable=False)
+    item_type = db.Column(db.String(64), index=False, nullable=False)
+
+    def __init__(self, owner_id, name, item_uuid, item_type):
+        self.owner_id = owner_id
+        self.name = name
+        self.item_uuid = item_uuid
+        self.item_type = item_type
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_favorite(self):
+        db.session.commit()
+
+    def delete_favorite(self):
+        self.delete()
+        db.session.commit()
+
+    def to_dict(self):
+        serialized = dict((col, getattr(self, col)) for col in list(self.__table__.columns.keys()))
+        return serialized
+
 # ==================================   Questionnaire  =========================
 class Questionnaire(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     uuid = db.Column(db.String(64), index=False, nullable=False)
+    owner_id = db.Column(db.String(64), index=False, nullable=False)
     name = db.Column(db.String(128), index=True, nullable=False)
     room_uuid = db.Column(db.String(64), db.ForeignKey('room.uuid'), nullable=False)
     date_time = db.Column(db.String(64), index=False, nullable=False)

@@ -67,6 +67,9 @@ class ErrorCodes(Enum):
     ERROR_CODE_PROJECT_NOT_FOUND = 1701
     ERROR_CODE_FAILED_TO_GET_PROJECTS = 1702
 
+    # Favorite Error Codes (1700 - 1799)
+    ERROR_CODE_FAVORITE_NOT_FOUND = 1800
+
 
 def enum_to_string(enum):
     return enum.name.lower().replace('_', ' ').replace("cant", "can't").capitalize()

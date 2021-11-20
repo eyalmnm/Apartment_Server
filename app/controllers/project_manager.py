@@ -6,9 +6,10 @@ from flask import jsonify
 from app import db
 from app.config.constants import ErrorCodes
 from app.config.user_status import UserStatus
+from app.controllers.user_manager import is_user_login
 from app.controllers.schemas import AddNewProjectSchema, GetProjectByIdSchema, GetProjectsAroundMeSchema, \
     RemoveContactFromProjectByContactSchema, AddNewContactToProjectByContactSchema
-from app.models import Session, Company, User, Project, ProjectComment, Contact, ContactComment
+from app.models import Company, User, Project, ProjectComment, Contact, ContactComment
 from app.utils.exception_util import create_error_response
 from app.utils.schema_utils import validate_schema
 from app.utils.uuid_utils import generate_uuid
@@ -108,14 +109,13 @@ def add_new_project(data):
     comment = data.get('text')
     contacts = data.get('contacts')
     date_time = data.get('date_time')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
-    if session:
+    username = is_user_login(uuid=uuid)
+    if username:
         company = db.session.query(Company).filter_by(uuid=company_uuid).first()
         if date_time is None:
             date_time = datetime.utcnow()
         if company:
-            manager_username = session.username
-            manager_user = db.session.query(User).filter_by(username=manager_username).first()
+            manager_user = db.session.query(User).filter_by(username=username).first()
             if manager_user.status == UserStatus.SUPER_ADMIN_USER.value or \
                     manager_user.status == UserStatus.ADMIN_USER.value:
                 temp_uuid = generate_uuid()
@@ -149,8 +149,8 @@ def remove_contact_from_project_by_contact(data):
     company_uuid = data.get('company_uuid')
     project_uuid = data.get('project_uuid')
     a_contact = data.get('contact')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
-    if session:
+    username = is_user_login(uuid=uuid)
+    if username:
         company = db.session.query(Company).filter_by(uuid=company_uuid).first()
         if company:
             project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
@@ -176,9 +176,8 @@ def add_new_contact_to_project_by_contact(data):
     company_uuid = data.get('company_uuid')
     project_uuid = data.get('project_uuid')
     a_contact = data.get('contact')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
-    if session:
-        username = session.username
+    username = is_user_login(uuid=uuid)
+    if username:
         user = db.session.query(User).filter_by(username=username).first()
         if user:
             company = db.session.query(Company).filter_by(uuid=company_uuid).first()
@@ -206,8 +205,8 @@ def get_project_by_id(data):
     uuid = data.get('uuid')
     company_uuid = data.get('company_uuid')
     project_uuid = data.get('project_uuid')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
-    if session:
+    username = is_user_login(uuid=uuid)
+    if username:
         company = db.session.query(Company).filter_by(uuid=company_uuid).first()
         if company:
             project = db.session.query(Project).filter_by(project_uuid=project_uuid).first()
@@ -237,8 +236,8 @@ def get_projects_around_me(data):
     company_uuid = data.get('company_uuid')
     latitude = data.get('latitude')
     longitude = data.get('longitude')
-    session = db.session.query(Session).filter_by(uuid=uuid).first()
-    if session:
+    username = is_user_login(uuid=uuid)
+    if username:
         company = db.session.query(Company).filter_by(uuid=company_uuid).first()
         if company:
             try:

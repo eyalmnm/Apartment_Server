@@ -13,6 +13,8 @@ from app.controllers.floor_manager import add_new_floor, get_floor_by_id, update
 from app.controllers.apartment_manager import add_new_apartment, get_apartment_by_id, update_apartment_by_id, \
     delete_apartment_by_id, get_apartment_score_by_id
 from app.controllers.room_manager import add_new_room, get_room_by_id, update_room_by_id, delete_room_by_id
+from app.controllers.favorite_manager import add_new_favorite, get_all_favorites, get_favorite_by_id, \
+    update_favorite_by_id, delete_favorite_by_id
 from app.controllers.questionnaire_manager import add_new_questionnaire, get_questionnaire_by_id, \
     update_questionnaire_by_id, delete_questionnaire_by_id, upload_filled_questionnaire
 from app.controllers.item_manager import add_new_item, get_item_by_id, update_item_by_uuid, delete_item_by_id
@@ -628,6 +630,76 @@ def delete_room():
     """
     if check_auth_header_secret():
         return delete_room_by_id()
+    else:
+        return 'Unknown Package'
+
+
+# ==================================   Favorite  ==============================
+@app.route('/add_favorite', methods=['POST'])
+def add_favorite():
+    """
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    item_type = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'favorite_id': id}
+    """
+    if check_auth_header_secret():
+        return add_new_favorite()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_favorites', methods=['POST', 'GET'])
+def get_favorites():
+    """
+    uuid = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'favorites': [favorite_dict]}
+    """
+    if check_auth_header_secret():
+        return get_all_favorites()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/get_favorite', methods=['POST', 'GET'])
+def get_favorite():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'favorite': favorite_dict}
+    """
+    if check_auth_header_secret():
+        return get_favorite_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/update_favorite', methods=['POST'])
+def update_favorite():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    name = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    item_type = fields.Str(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'favorite': favorite_dict}
+    """
+    if check_auth_header_secret():
+        return update_favorite_by_id()
+    else:
+        return 'Unknown Package'
+
+
+@app.route('/delete_favorite', methods=['POST', 'GET'])
+def delete_favorite():
+    """
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    :return: {'result_code': 0, 'error_message': '', 'favorite_id': id}
+    """
+    if check_auth_header_secret():
+        return delete_favorite_by_id()
     else:
         return 'Unknown Package'
 

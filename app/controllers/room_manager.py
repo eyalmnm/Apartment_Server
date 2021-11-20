@@ -104,7 +104,7 @@ def update_room_by_id(data):
             else:
                 return generate_room_not_found_error(id)
         else:
-            return generate_apartment_not_found_error(apartment_id)
+            return generate_apartment_not_found_error(apartment_uuid)
     else:
         return generate_user_not_login_response()
 

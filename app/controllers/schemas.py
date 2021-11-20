@@ -334,6 +334,36 @@ class DeleteRoomByIdSchema(Schema):
     id = fields.Int(required=True)
 
 
+# ==================================   Favorite  ==============================
+class AddNewFavoriteSchema(Schema):
+    uuid = fields.Str(required=True)
+    name = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    item_type = fields.Str(required=True)
+
+
+class GetAllFavoriteScheme(Schema):
+    uuid = fields.Str(required=True)
+
+
+class GetFavoriteByIdScheme(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
+class UpdateFavoriteByIdScheme(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+    name = fields.Str(required=True)
+    item_uuid = fields.Str(required=True)
+    item_type = fields.Str(required=True)
+
+
+class DeleteFavoriteByIdScheme(Schema):
+    uuid = fields.Str(required=True)
+    id = fields.Int(required=True)
+
+
 # ==================================   Questionnaire  =========================
 class AddNewQuestionnaireSchema(Schema):
     uuid = fields.Str(required=True)
